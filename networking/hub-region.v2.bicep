@@ -14,25 +14,12 @@ param aksImageBuilderSubnetResourceId string
 param aksJumpboxSubnetResourceId string
 
 @allowed([
-  'australiaeast'
-  'canadacentral'
-  'centralus'
-  'eastus'
-  'eastus2'
-  'westus2'
-  'francecentral'
-  'germanywestcentral'
-  'northeurope'
-  'southafricanorth'
-  'southcentralus'
-  'uksouth'
-  'westeurope'
-  'japaneast'
-  'southeastasia'
+  'usgovarizona'
+  'usgovvirginia'
 ])
 @description('The hub\'s regional affinity. All resources tied to this hub will also be homed in this region.  The network team maintains this approved regional list which is a subset of zones with Availability Zone support.')
 @minLength(4)
-param location string = 'eastus2'
+param location string = 'usgovarizona'
 
 @description('A /24 to contain the regional firewall, management, and gateway subnet')
 @minLength(10)
@@ -381,11 +368,11 @@ resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2021-05-01' = [f
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'
+  // ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
@@ -400,11 +387,11 @@ resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'
+  // ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
@@ -552,11 +539,11 @@ resource region_flowlog_storageAccount_diagnosticSettings 'Microsoft.Insights/di
 resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
   name: 'fw-${location}'
   location: location
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'
+  // ]
   properties: {
     additionalProperties: {
       'Network.DNS.EnableProxy': 'true'
@@ -646,10 +633,12 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 }
               ]
               targetFqdns: [
-                '*.ods.opinsights.azure.com'
-                '*.oms.opinsights.azure.com'
-                '${location}.monitoring.azure.com'
-                '*.handler.control.monitor.azure.com'
+                'dc.services.visualstudio.com'
+                '*.ods.opinsights.azure.us'
+                '*.oms.opinsights.azure.us'
+                'global.handler.control.monitor.azure.us'
+                '${location}.monitoring.azure.us'
+                '*.handler.control.monitor.azure.us'
               ]
             }
             {
@@ -667,9 +656,9 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
-                'data.policy.core.windows.net'
+                'data.policy.azure.us'
                 #disable-next-line no-hardcoded-env-urls
-                'store.policy.core.windows.net'
+                'store.policy.azure.us'
               ]
             }
           ]
@@ -713,7 +702,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 }
               ]
               targetFqdns: [
-                '${location}.dp.kubernetesconfiguration.azure.com'
+                '${location}.dp.kubernetesconfiguration.azure.us'
                 'mcr.microsoft.com'
                 '${split(environment().resourceManager, '/')[2]}' // Prevent the linter from getting upset at management.azure.com - https://github.com/Azure/bicep/issues/3080
                 '${split(environment().authentication.loginEndpoint, '/')[2]}' // Prevent the linter from getting upset at login.microsoftonline.com
@@ -746,7 +735,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
-                'management.azure.com'
+                'management.azure.us'
               ]
             }
             {
@@ -763,7 +752,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
-                '*.blob.core.windows.net'
+                '*.blob.core.usgovcloudapi.net'
               ]
             }
             {
@@ -905,7 +894,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
-                'login.microsoftonline.com'
+                'login.microsoftonline.us'
               ]
             }
             {
@@ -922,7 +911,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
-                'management.azure.com'
+                'management.azure.us'
               ]
             }
             {
@@ -976,10 +965,13 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 }
               ]
               targetFqdns: [
-                '*.ods.opinsights.azure.com'
-                '*.oms.opinsights.azure.com'
-                '${location}.monitoring.azure.com'
-                '*.agentsvc.azure-automation.net'
+                'dc.services.visualstudio.com'
+                'global.handler.control.monitor.azure.us'
+                '${location}.monitoring.azure.us'
+                '*.handler.control.monitor.azure.us'
+                '*.ods.opinsights.azure.us'
+                '*.oms.opinsights.azure.us'
+                '*.agentsvc.azure-automation.us'
               ]
             }
           ]

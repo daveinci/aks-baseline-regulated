@@ -26,7 +26,7 @@ param networkWatcherRGRegion string = ''
 /*** VARIABLES ***/
 
 @description('This region is used as the default for all generic resource groups and for any additional deployment resources. No resources are actually deployed to this resource group.')
-var deploymentResourceRegion = 'centralus' 
+var deploymentResourceRegion = 'usgovarizona' 
 
 /*** EXISTING RESOURCES ***/
 
@@ -122,66 +122,66 @@ resource pdEnableAksDefender 'Microsoft.Authorization/policyDefinitions@2021-06-
     }
 }
 
-@description('Microsoft Defender for Key Vault provides an additional layer of protection and security intelligence by detecting unusual and potentially harmful attempts to access or exploit key vault accounts.')
-resource pdEnableAkvDefender 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
-    name: guid(subscription().id, 'EnableDefenderForAkv')
-    properties: {
-        displayName: 'Microsoft Defender for Key Vault is enabled'
-        policyType: 'Custom'
-        mode: 'All'
-        description: 'Microsoft Defender for Key Vault provides an additional layer of protection and security intelligence by detecting unusual and potentially harmful attempts to access or exploit key vault accounts.'
-        metadata: {
-            version: '1.0.0'
-            category: 'Microsoft Defender for Cloud'
-        }
-        policyRule: {
-            if: {
-                allOf: [
-                    {
-                        field: 'type'
-                        equals: 'Microsoft.Resources/subscriptions'
-                    }
-                ]
-            }
-            then: {
-                effect: 'deployIfNotExists'
-                details: {
-                    type: 'Microsoft.Security/pricings'
-                    name: 'KeyVaults'
-                    deploymentScope: 'subscription'
-                    existenceScope: 'subscription'
-                    roleDefinitionIds: [
-                        securityAdminRole.id
-                    ]
-                    existenceCondition: {
-                        field: 'Microsoft.Security/pricings/pricingTier'
-                        equals: 'Standard'
-                    }
-                    deployment: {
-                        location: deploymentResourceRegion
-                        properties: {
-                            mode: 'incremental'
-                            template: {
-                                '$schema': 'https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#'
-                                contentVersion: '1.0.0.0'
-                                resources: [
-                                    {
-                                        type: 'Microsoft.Security/pricings'
-                                        apiVersion: '2018-06-01'
-                                        name: 'KeyVaults'
-                                        properties: {
-                                            pricingTier: 'Standard'
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+// @description('Microsoft Defender for Key Vault provides an additional layer of protection and security intelligence by detecting unusual and potentially harmful attempts to access or exploit key vault accounts.')
+// resource pdEnableAkvDefender 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+//     name: guid(subscription().id, 'EnableDefenderForAkv')
+//     properties: {
+//         displayName: 'Microsoft Defender for Key Vault is enabled'
+//         policyType: 'Custom'
+//         mode: 'All'
+//         description: 'Microsoft Defender for Key Vault provides an additional layer of protection and security intelligence by detecting unusual and potentially harmful attempts to access or exploit key vault accounts.'
+//         metadata: {
+//             version: '1.0.0'
+//             category: 'Microsoft Defender for Cloud'
+//         }
+//         policyRule: {
+//             if: {
+//                 allOf: [
+//                     {
+//                         field: 'type'
+//                         equals: 'Microsoft.Resources/subscriptions'
+//                     }
+//                 ]
+//             }
+//             then: {
+//                 effect: 'deployIfNotExists'
+//                 details: {
+//                     type: 'Microsoft.Security/pricings'
+//                     name: 'KeyVaults'
+//                     deploymentScope: 'subscription'
+//                     existenceScope: 'subscription'
+//                     roleDefinitionIds: [
+//                         securityAdminRole.id
+//                     ]
+//                     existenceCondition: {
+//                         field: 'Microsoft.Security/pricings/pricingTier'
+//                         equals: 'Standard'
+//                     }
+//                     deployment: {
+//                         location: deploymentResourceRegion
+//                         properties: {
+//                             mode: 'incremental'
+//                             template: {
+//                                 '$schema': 'https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#'
+//                                 contentVersion: '1.0.0.0'
+//                                 resources: [
+//                                     {
+//                                         type: 'Microsoft.Security/pricings'
+//                                         apiVersion: '2018-06-01'
+//                                         name: 'KeyVaults'
+//                                         properties: {
+//                                             pricingTier: 'Standard'
+//                                         }
+//                                     }
+//                                 ]
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 
 @description('Ensures Microsoft Defender is enabled for select resources.')
 resource psdEnableDefender 'Microsoft.Authorization/policySetDefinitions@2021-06-01' = {
@@ -198,9 +198,9 @@ resource psdEnableDefender 'Microsoft.Authorization/policySetDefinitions@2021-06
             {
                 policyDefinitionId: pdEnableAksDefender.id
             }
-            {
-                policyDefinitionId: pdEnableAkvDefender.id
-            }
+            // {
+            //     policyDefinitionId: pdEnableAkvDefender.id
+            // }
         ]
     }
 }
@@ -443,13 +443,13 @@ module defenderPolicyDeployment 'modules/subscriptionPolicyAssignment.bicep' = {
     }
 }
 
-@description('Enable Microsoft Defender Standard for Key Vault. Requires Owner or Security Admin role.')
-resource enableKeyVaultspricing 'Microsoft.Security/pricings@2018-06-01' = if (enableMicrosoftDefenderForCloud) {
-    name: 'KeyVaults'
-    properties: {
-        pricingTier: 'Standard'
-    }
-}
+// @description('Enable Microsoft Defender Standard for Key Vault. Requires Owner or Security Admin role.')
+// resource enableKeyVaultspricing 'Microsoft.Security/pricings@2018-06-01' = if (enableMicrosoftDefenderForCloud) {
+//     name: 'KeyVaults'
+//     properties: {
+//         pricingTier: 'Standard'
+//     }
+// }
 
 @description('Enable Microsoft Defender Standard for Container Registry. Deprecated, please move to Defender for Containers. Requires Owner or Security Admin role.')
 resource enableContainerRegistry 'Microsoft.Security/pricings@2018-06-01' = if (enableMicrosoftDefenderForCloud) {

@@ -3,4 +3,4 @@ kind: Kustomization
 namespace: kube-system
 resources:
 - container-azm-ms-agentconfig.yaml
-- osm-config.yaml
+# - osm-config.yaml

@@ -16,25 +16,12 @@ param k8sControlPlaneAuthorizationTenantId string
 param appGatewayListenerCertificate string
 
 @allowed([
-  'australiaeast'
-  'canadacentral'
-  'centralus'
-  'eastus'
-  'eastus2'
-  'westus2'
-  'francecentral'
-  'germanywestcentral'
-  'northeurope'
-  'southafricanorth'
-  'southcentralus'
-  'uksouth'
-  'westeurope'
-  'japaneast'
-  'southeastasia'
+  'usgovarizona'
+  'usgovvirginia'
 ])
 @description('AKS Service, Node Pools, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
 @minLength(4)
-param location string = 'eastus2'
+param location string = 'usgovarizona'
 
 @description('The Azure resource ID of a VM image that will be used for the jump box.')
 @minLength(70)
@@ -151,7 +138,7 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
 
 resource pdzMc 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
   scope: spokeResourceGroup
-  name: 'privatelink.${location}.azmk8s.io'
+  name: 'privatelink.${location}.cx.aks.containerservice.azure.us'
 }
 
 @description('Used as primary entry point for workload. Expected to be assigned to an Azure Application Gateway.')
@@ -394,7 +381,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
       }
     }
   }
-  zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
+  // zones: pickZones('Microsoft.Network', 'applicationGateways', location, 3)
   properties: {
     sku: {
       name: 'WAF_v2'
@@ -602,7 +589,7 @@ resource agw_diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-0
 resource vmssJumpboxes 'Microsoft.Compute/virtualMachineScaleSets@2020-12-01' = {
   name: 'vmss-jumpboxes'
   location: location
-  zones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
+  // zones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
   sku: {
     name: 'Standard_DS1_v2'
     tier: 'Standard'
@@ -784,7 +771,7 @@ resource paMustNotAutomountApiCreds 'Microsoft.Authorization/policyAssignments@2
           'gatekeeper-system'
           'flux-system' // Required by Flux
           'falco-system' // Required by Falco
-          'osm-system' // Required by OSM
+          // 'osm-system' // Required by OSM
           'ingress-nginx' // Required by NGINX
           'cluster-baseline-settings' // Required by Key Vault CSI & Kured
         ]
@@ -876,7 +863,7 @@ resource paApprovedServicePortsOnly 'Microsoft.Authorization/policyAssignments@2
         value: [
           'kube-system'
           'gatekeeper-system'
-          'osm-system'
+          // 'osm-system'
         ]
       }
       allowedServicePortsList: {
@@ -960,7 +947,7 @@ resource paEnforceImageSource 'Microsoft.Authorization/policyAssignments@2020-03
     policyDefinitionId: pdEnforceImageSourceId
     parameters: {
       allowedContainerImagesRegex: {
-        value: '${acrName}\\.azurecr\\.io\\/live\\/.+$|mcr\\.microsoft\\.com\\/oss\\/(openservicemesh\\/init:|envoyproxy\\/envoy:).+$'
+        value: '${acrName}\\.azurecr\\.us\\/live\\/.+$|mcr\\.microsoft\\.com\\/oss\\/(openservicemesh\\/init:|envoyproxy\\/envoy:).+$'
       }
       effect: {
         value: 'deny'
@@ -1045,7 +1032,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
         orchestratorVersion: kubernetesVersion
         enableNodePublicIP: false
         maxPods: 30
-        availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
+        // availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
         upgradeSettings: {
           maxSurge: '33%'
         }
@@ -1079,7 +1066,8 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
         orchestratorVersion: kubernetesVersion
         enableNodePublicIP: false
         maxPods: 30
-        availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
+        // availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
+        availabilityZones: []
         upgradeSettings: {
           maxSurge: '33%'
         }
@@ -1111,7 +1099,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
         orchestratorVersion: kubernetesVersion
         enableNodePublicIP: false
         maxPods: 30
-        availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
+        // availabilityZones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
         upgradeSettings: {
           maxSurge: '33%'
         }
@@ -1149,11 +1137,11 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
           version: 'v2'
         }
       }
-      openServiceMesh: {
-        enabled: true
-        config: {
-        }
-      }
+      // openServiceMesh: {
+      //   enabled: true
+      //   config: {
+      //   }
+      // }
       azureKeyvaultSecretsProvider: {
         enabled: true
         config: {

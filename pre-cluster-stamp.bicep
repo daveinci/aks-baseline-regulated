@@ -7,52 +7,21 @@ targetScope = 'resourceGroup'
 param targetVnetResourceId string
 
 @allowed([
-  'australiaeast'
-  'canadacentral'
-  'centralus'
-  'eastus'
-  'eastus2'
-  'westus2'
-  'francecentral'
-  'germanywestcentral'
-  'northeurope'
-  'southafricanorth'
-  'southcentralus'
-  'uksouth'
-  'westeurope'
-  'japaneast'
-  'southeastasia'
+  'usgovarizona'
+  'usgovvirginia'
 ])
 @description('AKS Service, Node Pools, and supporting services (KeyVault, App Gateway, etc) region. This needs to be the same region as the vnet provided in these parameters.')
 @minLength(4)
-param location string = 'eastus2'
+param location string = 'usgovarizona'
 
 @allowed([
-  'australiasoutheast'
-  'canadaeast'
-  'eastus2'
-  'westus'
-  'centralus'
-  'westcentralus'
-  'francesouth'
-  'germanynorth'
-  'westeurope'
-  'ukwest'
-  'northeurope'
-  'japanwest'
-  'southafricawest'
-  'northcentralus'
-  'eastasia'
-  'eastus'
-  'westus2'
-  'francecentral'
-  'uksouth'
-  'japaneast'
-  'southeastasia'
+  'usgovarizona'
+  'usgovvirginia'
+  'usgovtexas'
 ])
 @description('For Azure resources that support native geo-redunancy, provide the location the redundant service will have its secondary. Should be different than the location parameter and ideally should be a paired region - https://learn.microsoft.com/azure/best-practices-availability-paired-regions. This region does not need to support availability zones.')
 @minLength(4)
-param geoRedundancyLocation string = 'centralus'
+param geoRedundancyLocation string = 'usgovtexas'
 
 @description('The Base64 encoded AKS ingress controller\'s public certificate (as .crt or .cer) to be stored in Azure Key Vault as secret and referenced by Azure Application Gateway as a trusted root certificate.')
 @minLength(35)
@@ -102,12 +71,12 @@ resource vnetSpoke 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
 
 resource pdzCr 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
   scope: spokeResourceGroup
-  name: 'privatelink.azurecr.io'
+  name: 'privatelink.azurecr.us'
 }
 
 resource pdzKv 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
   scope: spokeResourceGroup
-  name: 'privatelink.vaultcore.azure.net'
+  name: 'privatelink.vault.usgovcloudapi.net'
 }
 
 /*** RESOURCES ***/
@@ -158,7 +127,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {
     }
     dataEndpointEnabled: true
     networkRuleBypassOptions: 'AzureServices'
-    zoneRedundancy: 'Enabled'
+    zoneRedundancy: 'Disabled'
   }
 
   resource grl 'replications' = {

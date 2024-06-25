@@ -3,21 +3,8 @@ targetScope = 'resourceGroup'
 /*** PARAMETERS ***/
 
 @allowed([
-  'australiaeast'
-  'canadacentral'
-  'centralus'
-  'eastus'
-  'eastus2'
-  'westus2'
-  'francecentral'
-  'germanywestcentral'
-  'northeurope'
-  'southafricanorth'
-  'southcentralus'
-  'uksouth'
-  'westeurope'
-  'japaneast'
-  'southeastasia'
+  'usgovarizona'
+  'usgovvirginia'
 ])
 @description('The hub\'s regional affinity. All resources tied to this hub will also be homed in this region.  The network team maintains this approved regional list which is a subset of zones with Availability Zone support.')
 @minLength(4)
@@ -339,11 +326,11 @@ resource pipsAzureFirewall 'Microsoft.Network/publicIPAddresses@2021-05-01' = [f
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'
+  // ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
@@ -358,11 +345,11 @@ resource pipAzureBastion 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '1'
-    '2'
-    '3'    
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'    
+  // ]
   properties: {
     publicIPAllocationMethod: 'Static'
     idleTimeoutInMinutes: 4
@@ -479,11 +466,11 @@ resource region_flowlog_storageAccount_diagnosticSettings 'Microsoft.Insights/di
 resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
   name: 'fw-${location}'
   location: location
-  zones: [
-    '1'
-    '2'
-    '3'
-  ]
+  // zones: [
+  //   '1'
+  //   '2'
+  //   '3'
+  // ]
   properties: {
     additionalProperties: {
       'Network.DNS.EnableProxy': 'true'
