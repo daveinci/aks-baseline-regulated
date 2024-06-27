@@ -1,25 +1,25 @@
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
-  name: aks-ingress-contoso-com-tls-secret-csi-akv
+  name: aks-ingress-daveinci-com-tls-secret-csi-akv
 spec:
   provider: azure
   secretObjects:
   - secretName: ingress-tls-csi
     type: kubernetes.io/tls
     data:
-    - objectName: ingress-internal-aks-ingress-contoso-com-tls
+    - objectName: ingress-internal-aks-ingress-daveinci-com-tls
       key: tls.key
-    - objectName: ingress-internal-aks-ingress-contoso-com-tls
+    - objectName: ingress-internal-aks-ingress-daveinci-com-tls
       key: tls.crt
   parameters:
-    clientID: 8cc56d6b-82da-4d71-a742-e3c1c2fe2e66
+    clientID: 4f698016-a743-462b-8a25-b7fa07c76806
     usePodIdentity: "false"
     useVMManagedIdentity: "false"
     keyvaultName: kv-aks-ite2hif2xfui4
     objects: |
       array:
         - |
-          objectName: ingress-internal-aks-ingress-contoso-com-tls
+          objectName: ingress-internal-aks-ingress-daveinci-com-tls
           objectType: secret
-    tenantID: 
+    tenantID: 263aac10-b1b0-4664-803e-74dd7ca8c5ed

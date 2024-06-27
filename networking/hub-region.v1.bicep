@@ -635,7 +635,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 targetFqdns: [
                   'aka.ms'
 #disable-next-line no-hardcoded-env-urls
-                  'azurecliextensionsync.blob.core.windows.net'
+                  'azcliextensionsync.blob.core.windows.net'
 #disable-next-line no-hardcoded-env-urls
                   'azurecliprod.blob.core.windows.net'
                 ]
@@ -728,6 +728,29 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
               targetFqdns: [
                 'releases.hashicorp.com'
+              ]
+            }
+            {
+              name: 'azure-monitor'
+              description: 'This is required for Azure Monitor'
+              sourceIpGroups: [
+                resourceId('Microsoft.Network/ipGroups', imageBuilder_ipgroups.name)
+              ]
+              protocols: [
+                {
+                  protocolType: 'Https'
+                  port: 443
+                }
+              ]
+              targetFqdns: [
+                'dc.applicationinsights.azure.com'
+                'dc.applicationinsights.microsoft.com'
+                'dc.services.visualstudio.com'
+                '*.in.applicationinsights.azure.com'
+                'live.applicationinsights.azure.com'
+                'rt.applicationinsights.microsoft.com'
+                'rt.services.visualstudio.com'
+                '${location}.livediagnostics.monitor.azure.com'
               ]
             }
           ]

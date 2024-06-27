@@ -20,9 +20,9 @@ metadata:
 spec:
   tls:
   - hosts:
-    - bu0001a0005-00.aks-ingress.contoso.com
+    - bu0001a0005-00.aks-ingress.daveinci.com
   rules:
-  - host: bu0001a0005-00.aks-ingress.contoso.com
+  - host: bu0001a0005-00.aks-ingress.daveinci.com
     http:
       paths:
       - path: /.*

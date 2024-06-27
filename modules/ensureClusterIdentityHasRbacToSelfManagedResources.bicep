@@ -39,7 +39,7 @@ resource dnsZoneContributorRole 'Microsoft.Authorization/roleDefinitions@2022-04
 /*** EXISTING SPOKE RESOURCES ***/
 
 resource pdzMc 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
-  name: 'privatelink.${location}.azmk8s.io'
+  name: 'privatelink.${location}.cx.aks.containerservice.azure.us'
 }
 
 resource vnetSpoke 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {

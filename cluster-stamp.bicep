@@ -92,13 +92,13 @@ var pdEnforceImageSourceId = tenantResourceId('Microsoft.Authorization/policyDef
 @description('Spoke resource group')
 resource spokeResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
   scope: subscription()
-  name: '${split(targetVnetResourceId, '/')[4]}'
+  name: split(targetVnetResourceId, '/')[4]
 }
 
 @description('The Spoke virtual network')
 resource vnetSpoke 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
   scope: spokeResourceGroup
-  name: '${last(split(targetVnetResourceId, '/'))}'
+  name: last(split(targetVnetResourceId, '/'))
 
   // Spoke virutual network's subnet for application gateway
   resource snetApplicationGateway 'subnets' existing = {
@@ -164,7 +164,7 @@ resource kv 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
   scope: resourceGroup()
   name: kvName
   resource kvsAppGwIngressInternalAksIngressTls 'secrets' existing = {
-    name: 'agw-ingress-internal-aks-ingress-contoso-com-tls'
+    name: 'agw-ingress-internal-aks-ingress-daveinci-com-tls'
   }
 }
 
@@ -261,6 +261,7 @@ resource kvMiAppGatewayKeyVaultReader_roleAssignment 'Microsoft.Authorization/ro
 resource lawAllPrometheus 'Microsoft.OperationalInsights/workspaces/savedSearches@2020-08-01' = {
   parent: la
   name: 'AllPrometheus'
+  // etag: '*' --This is where it should go according to template reference but doesn't work here
   properties: {
     eTag: '*'
     category: 'Prometheus'
@@ -273,6 +274,7 @@ resource lawAllPrometheus 'Microsoft.OperationalInsights/workspaces/savedSearche
 resource lawForbiddenReponsesOnIngress 'Microsoft.OperationalInsights/workspaces/savedSearches@2020-08-01' = {
   parent: la
   name: 'ForbiddenReponsesOnIngress'
+  // etag: '*' --This is where it should go according to template reference but doesn't work here
   properties: {
     eTag: '*'
     category: 'Prometheus'
@@ -285,6 +287,7 @@ resource lawForbiddenReponsesOnIngress 'Microsoft.OperationalInsights/workspaces
 resource lawNodeRebootRequested 'Microsoft.OperationalInsights/workspaces/savedSearches@2020-08-01' = {
   parent: la
   name: 'NodeRebootRequested'
+  // etag: '*' --This is where it should go according to template reference but doesn't work here
   properties: {
     eTag: '*'
     category: 'Prometheus'
@@ -397,7 +400,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
     }
     trustedRootCertificates: [
       {
-        name: 'root-cert-wildcard-aks-ingress-contoso'
+        name: 'root-cert-wildcard-aks-ingress-daveinci'
         properties: {
           keyVaultSecretId: kv::kvsAppGwIngressInternalAksIngressTls.properties.secretUri
         }
@@ -456,7 +459,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
     ]
     probes: [
       {
-        name: 'probe-bu0001a0005-00.aks-ingress.contoso.com'
+        name: 'probe-bu0001a0005-00.aks-ingress.daveinci.com'
         properties: {
           protocol: 'Https'
           path: '/favicon.ico'
@@ -486,7 +489,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
     ]
     backendAddressPools: [
       {
-        name: 'bu0001a0005-00.aks-ingress.contoso.com'
+        name: 'bu0001a0005-00.aks-ingress.daveinci.com'
         properties: {
           backendAddresses: [
             {
@@ -498,20 +501,20 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
     ]
     backendHttpSettingsCollection: [
       {
-        name: 'aks-ingress-contoso-backendpool-httpsettings'
+        name: 'aks-ingress-daveinci-backendpool-httpsettings'
         properties: {
           port: 443
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
-          hostName: 'bu0001a0005-00.aks-ingress.contoso.com'
+          hostName: 'bu0001a0005-00.aks-ingress.daveinci.com'
           pickHostNameFromBackendAddress: false
           requestTimeout: 20
           probe: {
-            id: resourceId('Microsoft.Network/applicationGateways/probes', 'agw-${clusterName}', 'probe-bu0001a0005-00.aks-ingress.contoso.com')
+            id: resourceId('Microsoft.Network/applicationGateways/probes', 'agw-${clusterName}', 'probe-bu0001a0005-00.aks-ingress.daveinci.com')
           }
           trustedRootCertificates: [
             {
-              id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', 'agw-${clusterName}', 'root-cert-wildcard-aks-ingress-contoso')
+              id: resourceId('Microsoft.Network/applicationGateways/trustedRootCertificates', 'agw-${clusterName}', 'root-cert-wildcard-aks-ingress-daveinci')
             }
           ]
         }
@@ -531,7 +534,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
           sslCertificate: {
             id: resourceId('Microsoft.Network/applicationGateways/sslCertificates', 'agw-${clusterName}', 'agw-${clusterName}-ssl-certificate')
           }
-          hostName: 'bicycle.contoso.com'
+          hostName: 'lab.daveinci.com'
           hostNames: []
           requireServerNameIndication: true
         }
@@ -547,10 +550,10 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
             id: resourceId('Microsoft.Network/applicationGateways/httpListeners', 'agw-${clusterName}', 'listener-https')
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'agw-${clusterName}', 'bu0001a0005-00.aks-ingress.contoso.com')
+            id: resourceId('Microsoft.Network/applicationGateways/backendAddressPools', 'agw-${clusterName}', 'bu0001a0005-00.aks-ingress.daveinci.com')
           }
           backendHttpSettings: {
-            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'agw-${clusterName}', 'aks-ingress-contoso-backendpool-httpsettings')
+            id: resourceId('Microsoft.Network/applicationGateways/backendHttpSettingsCollection', 'agw-${clusterName}', 'aks-ingress-daveinci-backendpool-httpsettings')
           }
         }
       }
@@ -604,7 +607,7 @@ resource vmssJumpboxes 'Microsoft.Compute/virtualMachineScaleSets@2020-12-01' = 
     upgradePolicy: {
       mode: 'Automatic'
     }
-    zoneBalance: false
+    // zoneBalance: false
     virtualMachineProfile: {
       diagnosticsProfile: {
         bootDiagnostics: {
@@ -673,36 +676,36 @@ resource vmssJumpboxes 'Microsoft.Compute/virtualMachineScaleSets@2020-12-01' = 
     omsVmInsights
   ]
 
-  resource extOmsAgentForLinux 'extensions' = {
-    name: 'OMSExtension'
-    properties: {
-      publisher: 'Microsoft.EnterpriseCloud.Monitoring'
-      type: 'OmsAgentForLinux'
-      typeHandlerVersion: '1.13'
-      autoUpgradeMinorVersion: true
-      settings: {
-        stopOnMultipleConnections: true
-        azureResourceId: vmssJumpboxes.id
-        workspaceId: la.properties.customerId
-      }
-      protectedSettings: {
-        workspaceKey: la.listKeys().primarySharedKey
-      }
-    }
-  }
+  // resource extOmsAgentForLinux 'extensions' = {
+  //   name: 'OMSExtension'
+  //   properties: {
+  //     publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+  //     type: 'OmsAgentForLinux'
+  //     typeHandlerVersion: '1.13'
+  //     autoUpgradeMinorVersion: true
+  //     settings: {
+  //       stopOnMultipleConnections: true
+  //       azureResourceId: vmssJumpboxes.id
+  //       workspaceId: la.properties.customerId
+  //     }
+  //     protectedSettings: {
+  //       workspaceKey: la.listKeys().primarySharedKey
+  //     }
+  //   }
+  // }
 
-  resource extDependencyAgentLinux 'extensions' = {
-    name: 'DependencyAgentLinux'
-    properties: {
-      publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
-      type: 'DependencyAgentLinux'
-      typeHandlerVersion: '9.10'
-      autoUpgradeMinorVersion: true
-    }
-    dependsOn: [
-      extOmsAgentForLinux
-    ]
-  }
+  // resource extDependencyAgentLinux 'extensions' = {
+  //   name: 'DependencyAgentLinux'
+  //   properties: {
+  //     publisher: 'Microsoft.Azure.Monitoring.DependencyAgent'
+  //     type: 'DependencyAgentLinux'
+  //     typeHandlerVersion: '9.10'
+  //     autoUpgradeMinorVersion: true
+  //   }
+  //   dependsOn: [
+  //     extOmsAgentForLinux
+  //   ]
+  // }
 }
 
 resource paAksLinuxRestrictive 'Microsoft.Authorization/policyAssignments@2021-06-01' = {
@@ -712,7 +715,7 @@ resource paAksLinuxRestrictive 'Microsoft.Authorization/policyAssignments@2021-0
     policyDefinitionId: psdAKSLinuxRestrictiveId
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       excludedNamespaces: {
         value: [
@@ -731,7 +734,7 @@ resource paEnforceHttpsIngress 'Microsoft.Authorization/policyAssignments@2020-0
     policyDefinitionId: pdEnforceHttpsIngressId
     parameters: {
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: []
@@ -747,7 +750,7 @@ resource paEnforceInternalLoadBalancers 'Microsoft.Authorization/policyAssignmen
     policyDefinitionId: pdEnforceInternalLoadBalancersId
     parameters: {
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: []
@@ -763,7 +766,7 @@ resource paMustNotAutomountApiCreds 'Microsoft.Authorization/policyAssignments@2
     policyDefinitionId: pdMustNotAutomountApiCreds
     parameters: {
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: [
@@ -787,7 +790,7 @@ resource paMustUseSpecifiedLabels 'Microsoft.Authorization/policyAssignments@202
     policyDefinitionId: pdMustUseSpecifiedLabels
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       labelsList: {
         value: [
@@ -805,7 +808,7 @@ resource paMustUseTheseExternalIps 'Microsoft.Authorization/policyAssignments@20
     policyDefinitionId: pdAllowedExternalIPsId
     parameters: {
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: [
@@ -827,7 +830,7 @@ resource paApprovedContainerPortsOnly 'Microsoft.Authorization/policyAssignments
     policyDefinitionId: pdApprovedContainerPortsOnly
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       excludedNamespaces: {
         value: []
@@ -857,7 +860,7 @@ resource paApprovedServicePortsOnly 'Microsoft.Authorization/policyAssignments@2
     policyDefinitionId: pdApprovedServicePortsOnly
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       excludedNamespaces: {
         value: [
@@ -885,7 +888,7 @@ resource paRoRootFilesystem 'Microsoft.Authorization/policyAssignments@2020-09-0
     policyDefinitionId: pdRoRootFilesystemId
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       // Not all workloads support this. E.g. ASP.NET requires a non-readonly root file system to handle request buffering when there is memory pressure.
       excludedNamespaces: {
@@ -905,7 +908,7 @@ resource paBlockDefaultNamespace 'Microsoft.Authorization/policyAssignments@2020
     policyDefinitionId: pdDisallowNamespaceUsageId
     parameters: {
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: []
@@ -921,7 +924,7 @@ resource paEnforceResourceLimits 'Microsoft.Authorization/policyAssignments@2020
     policyDefinitionId: pdEnforceResourceLimitsId
     parameters: {
       effect: {
-        value: 'audit'
+        value: 'Audit'
       }
       cpuLimit: {
         value: '1500m'
@@ -950,7 +953,7 @@ resource paEnforceImageSource 'Microsoft.Authorization/policyAssignments@2020-03
         value: '${acrName}\\.azurecr\\.us\\/live\\/.+$|mcr\\.microsoft\\.com\\/oss\\/(openservicemesh\\/init:|envoyproxy\\/envoy:).+$'
       }
       effect: {
-        value: 'deny'
+        value: 'Deny'
       }
       excludedNamespaces: {
         value: [
@@ -1001,7 +1004,7 @@ module ensureClusterIdentityHasRbacToSelfManagedResources 'modules/ensureCluster
   }
 }
 
-resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
+resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
   name: clusterName
   location: location
   tags: {
@@ -1117,6 +1120,33 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
     servicePrincipalProfile: {
       clientId: 'msi'
     }
+    serviceMeshProfile: {
+      istio: {
+        certificateAuthority: {
+          plugin: {
+            keyVaultId: '/subscriptions/4d51eec3-6866-4e57-9e25-b5cf21d472a4/resourceGroups/rg-bu0001a0005/providers/Microsoft.KeyVault/vaults/kv-aks-ite2hif2xfui4'
+            keyObjectName: 'ca-key'
+            certChainObjectName: 'cert-chain'
+            certObjectName: 'ca-cert'
+            rootCertObjectName: 'root-cert'
+          }
+        }
+        components: {
+          egressGateways: [
+            {
+              enabled: false
+            }
+          ]
+          ingressGateways: [
+            {
+              enabled: true
+              mode: 'Internal'
+            }
+          ]
+        }
+      }
+      mode: 'Istio'
+    }
     addonProfiles: {
       httpApplicationRouting: {
         enabled: false
@@ -1152,16 +1182,17 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
     nodeResourceGroup: 'rg-${clusterName}-nodepools'
     enableRBAC: true
     enablePodSecurityPolicy: false
-    maxAgentPools: 3
+    // maxAgentPools: 3
     networkProfile: {
       networkPlugin: 'azure'
       networkPolicy: 'azure'
       outboundType: 'userDefinedRouting'
       loadBalancerSku: 'standard'
-      loadBalancerProfile: json('null')
+      // loadBalancerProfile: json('null')
+      loadBalancerProfile: null
       serviceCidr: '172.16.0.0/16'
       dnsServiceIP: '172.16.0.10'
-      dockerBridgeCidr: '172.18.0.1/16'
+      // dockerBridgeCidr: '172.18.0.1/16'
     }
     aadProfile: {
       managed: true
@@ -1225,8 +1256,8 @@ resource mc 'Microsoft.ContainerService/managedClusters@2022-10-02-preview' = {
     }
   }
   sku: {
-    name: 'Basic'
-    tier: 'Paid'
+    name: 'Base'
+    tier: 'Free'
   }
   dependsOn: [
     omsContainerInsights
