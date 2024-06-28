@@ -912,6 +912,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               targetFqdns: [
                 #disable-next-line no-hardcoded-env-urls
                 'management.azure.us'
+                'management.usgovcloudapi.net'
               ]
             }
             {
@@ -972,6 +973,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 '*.ods.opinsights.azure.us'
                 '*.oms.opinsights.azure.us'
                 '*.agentsvc.azure-automation.us'
+                'dc.applicationinsights.azure.us'
               ]
             }
           ]

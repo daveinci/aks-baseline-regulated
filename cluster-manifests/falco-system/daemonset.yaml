@@ -7,7 +7,7 @@ metadata:
   labels:
     app.kubernetes.io/name: falco
     app.kubernetes.io/instance: falco
-    app.kubernetes.io/version: "0.36.0"
+    app.kubernetes.io/version: "0.38.1"
     pci-scope: out-of-scope
 spec:
   selector:
@@ -35,7 +35,7 @@ spec:
           key: node-role.kubernetes.io/control-plane
       containers:
         - name: falco
-          image: docker.io/falcosecurity/falco-no-driver:0.36.0
+          image: docker.io/falcosecurity/falco-no-driver:0.38.1
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -119,7 +119,7 @@ spec:
           env:
       initContainers:
         - name: falco-driver-loader
-          image: docker.io/falcosecurity/falco-driver-loader:0.36.0
+          image: docker.io/falcosecurity/falco-driver-loader:0.38.1
           imagePullPolicy: IfNotPresent
           securityContext:
             privileged: true

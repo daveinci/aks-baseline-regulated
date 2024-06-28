@@ -41,7 +41,7 @@ param gitOpsBootstrappingRepoBranch string = 'main'
 
 /*** VARIABLES ***/
 
-var kubernetesVersion = '1.27.3'
+var kubernetesVersion = '1.29.4'
 
 var subRgUniqueString = uniqueString('aks', subscription().subscriptionId, resourceGroup().id)
 var clusterName = 'aks-${subRgUniqueString}'
@@ -1144,6 +1144,9 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
             }
           ]
         }
+        revisions: [
+          'asm-1-20'
+        ]
       }
       mode: 'Istio'
     }
