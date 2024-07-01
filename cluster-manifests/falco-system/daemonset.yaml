@@ -9,11 +9,13 @@ metadata:
     app.kubernetes.io/instance: falco
     app.kubernetes.io/version: "0.38.1"
     # app.kubernetes.io/managed-by: Helm
+    pci-scope: out-of-scope
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: falco
       app.kubernetes.io/instance: falco
+      pci-scope: out-of-scope
   template:
     metadata:
       name: falco
