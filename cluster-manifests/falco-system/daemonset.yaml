@@ -102,7 +102,7 @@ spec:
               subPath: falco.yaml
             
         - name: falcoctl-artifact-follow
-          image: docker.io/falcosecurity/falcoctl:0.6.2
+          image: docker.io/falcosecurity/falcoctl:0.8.0
           imagePullPolicy: IfNotPresent
           args:
             - artifact
@@ -142,7 +142,7 @@ spec:
               readOnly: true
           env:
         - name: falcoctl-artifact-install
-          image: docker.io/falcosecurity/falcoctl:0.6.2
+          image: docker.io/falcosecurity/falcoctl:0.8.0
           imagePullPolicy: IfNotPresent
           args: 
             - artifact
