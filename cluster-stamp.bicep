@@ -491,11 +491,11 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
       {
         name: 'bu0001a0005-00.aks-ingress.daveinci.com'
         properties: {
-          backendAddresses: [
-            {
-              ipAddress: '10.240.4.4' // This is the IP address that our ingress controller will request
-            }
-          ]
+          // backendAddresses: [
+          //   {
+          //     ipAddress: '10.240.4.4' // This is the IP address that our ingress controller will request
+          //   }
+          // ]
         }
       }
     ]
@@ -506,7 +506,7 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
           port: 443
           protocol: 'Https'
           cookieBasedAffinity: 'Disabled'
-          hostName: 'bu0001a0005-00.aks-ingress.daveinci.com'
+          hostName: 'bu0001a0005-00.daveinci.com'
           pickHostNameFromBackendAddress: false
           requestTimeout: 20
           probe: {
@@ -1122,15 +1122,15 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
     }
     serviceMeshProfile: {
       istio: {
-        certificateAuthority: {
-          plugin: {
-            keyVaultId: '/subscriptions/4d51eec3-6866-4e57-9e25-b5cf21d472a4/resourceGroups/rg-bu0001a0005/providers/Microsoft.KeyVault/vaults/kv-aks-ite2hif2xfui4'
-            keyObjectName: 'ca-key'
-            certChainObjectName: 'cert-chain'
-            certObjectName: 'ca-cert'
-            rootCertObjectName: 'root-cert'
-          }
-        }
+        // certificateAuthority: {
+        //   plugin: {
+        //     keyVaultId: '/subscriptions/4d51eec3-6866-4e57-9e25-b5cf21d472a4/resourceGroups/rg-bu0001a0005/providers/Microsoft.KeyVault/vaults/kv-aks-ite2hif2xfui4'
+        //     keyObjectName: 'ca-key'
+        //     certChainObjectName: 'cert-chain'
+        //     certObjectName: 'ca-cert'
+        //     rootCertObjectName: 'root-cert'
+        //   }
+        // }
         components: {
           egressGateways: [
             {

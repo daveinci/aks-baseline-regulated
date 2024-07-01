@@ -857,7 +857,7 @@ resource aksPrivateDnsZones_virtualNetworkLink_toClusterVNet 'Microsoft.Network/
 
 @description('Enables Azure Key Vault Private Link support.')
 resource akvPrivateDnsZones 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-    name: 'privatelink.vault.usgovcloudapi.net'
+    name: 'privatelink.vaultcore.usgovcloudapi.net'
     location: 'global'
     properties: {}
 }

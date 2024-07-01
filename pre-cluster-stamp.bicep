@@ -76,7 +76,7 @@ resource pdzCr 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
 
 resource pdzKv 'Microsoft.Network/privateDnsZones@2020-06-01' existing = {
   scope: spokeResourceGroup
-  name: 'privatelink.vault.usgovcloudapi.net'
+  name: 'privatelink.vaultcore.usgovcloudapi.net'
 }
 
 /*** RESOURCES ***/
