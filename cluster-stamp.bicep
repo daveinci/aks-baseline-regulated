@@ -491,11 +491,11 @@ resource agw 'Microsoft.Network/applicationGateways@2022-01-01' = {
       {
         name: 'bu0001a0005-00.aks-ingress.daveinci.com'
         properties: {
-          // backendAddresses: [
-          //   {
-          //     ipAddress: '10.240.4.4' // This is the IP address that our ingress controller will request
-          //   }
-          // ]
+          backendAddresses: [
+            {
+              ipAddress: '10.240.12.63' 
+            }
+          ]
         }
       }
     ]
