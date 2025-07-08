@@ -228,4 +228,4 @@ jobs:
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./networking/spoke-BU0001A0005-00.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": {{ env.HUB_VNET_ID }}}'
+        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.HUB_VNET_ID }}}'
