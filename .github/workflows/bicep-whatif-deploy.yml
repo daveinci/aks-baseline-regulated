@@ -84,7 +84,7 @@ jobs:
         parameters-file: ./subscription.bicepparam
                         
   deploy-hub:
-    name: 'Bicep Whatif'
+    name: 'Deploy hub'
     environment: prod
     runs-on: ubuntu-latest
 
@@ -111,7 +111,7 @@ jobs:
           az bicep build --file networking/hub-region.v0.bicep
         
     # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate
+    - name: Bicep Validate Hub Deployment
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
@@ -120,12 +120,12 @@ jobs:
         name: validate-${{ github.run_id }}
         location: ${{ vars.LOCATION }}
         scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs-${{ vars.LOCATION }}
+        resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep  
 
     # Preview changes
-    - name: "What-If"
+    - name: "What-If Hub Deployment"
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
@@ -134,12 +134,12 @@ jobs:
         name: whatif-${{ github.run_id }}
         location: ${{ vars.LOCATION }}
         scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs-${{ vars.LOCATION }}
+        resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep
 
     # # Deploy
-    # - name: "Bicep Deployment"
+    # - name: "Hub Bicep Deployment"
     #   uses: Azure/bicep-deploy@v2
     #   with:
     #     environment: 'azureUSGovernment'
@@ -148,7 +148,7 @@ jobs:
     #     name: deploy-${{ github.run_id }}
     #     location: usgovarizona
     #     scope: resourceGroup
-    #     resource-group-name: rg-enterprise-networking-hubs-${{ vars.LOCATION }}
+    #     resource-group-name: rg-enterprise-networking-hubs
     #     template-file: ./networking/hub-region.v0.bicep
     #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}      
     
