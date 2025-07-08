@@ -156,16 +156,14 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./networking/hub-region.v0.bicep
         parameters: '{"location": ${{ vars.LOCATION }}}'
-
-    - name: "Print hub deployment outputs"
-      run: |
-        echo "Hub VNet Resource ID: ${{ steps.hub-deploy.outputs.hubVnetId }}"
   
   deploy-jumpbox-imagebuilder:
     name: 'Deploy jumpbox image builder'
     environment: prod
     runs-on: ubuntu-latest
     needs: [deploy-hub]
+    env:
+      HUB_VNET_ID: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
 
     
     steps:
@@ -202,7 +200,7 @@ jobs:
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/spoke-BU0001A0005-00.bicep  
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ needs.deploy-hub.outputs.hubVnetResourceId }}}'
+        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": $HUB_VNET_ID }'
 
     # Preview changes
     - name: "What-If Jump Spoke Deployment"
@@ -216,7 +214,7 @@ jobs:
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/spoke-BU0001A0005-00.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ needs.deploy-hub.outputs.hubVnetResourceId }}}'
+        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": $HUB_VNET_ID }'
 
     # # Deploy
     # - name: "Jump Spoke Bicep Deployment"
