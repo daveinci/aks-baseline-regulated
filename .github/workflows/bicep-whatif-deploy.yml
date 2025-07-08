@@ -123,6 +123,7 @@ jobs:
         resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep  
+        parameters: location=${{ vars.LOCATION }}
 
     # Preview changes
     - name: "What-If Hub Deployment"
@@ -136,6 +137,8 @@ jobs:
         resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep
+        parameters: location=${{ vars.LOCATION }}
+
 
     # # Deploy
     # - name: "Hub Bicep Deployment"
