@@ -246,11 +246,82 @@ jobs:
   #       template-file: networking/hub-region.v1.bicep
   #       parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}}'
 
-  deploy-custom-roles:
-    name: 'Deploy custom AIB roles'
+  # deploy-custom-roles:
+  #   name: 'Deploy custom AIB roles'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
+
+  #   # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint AIB Role Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file jumpbox/createsubscriptionroles.bicep
+
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./jumpbox/createsubscriptionroles.bicep
+
+  #   # Preview changes
+  #   - name: "What-If"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./jumpbox/createsubscriptionroles.bicep
+
+
+  #   # Deploy
+  #   - name: "Bicep Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: DeployAibRbacRoles
+  #       location: usgovarizona
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./jumpbox/createsubscriptionroles.bicep
+
+  deploy-jumpbox-template:
+    name: 'Deploy jumpbox image template'
     environment: prod
     runs-on: ubuntu-latest
-
+    env:
+      RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+      ROLEID_NETWORKING: "37f5932f-be03-5e91-b655-a2cae1ab3d17"
+      ROLEID_IMGDEPLOY: "013337e2-e391-5fec-9779-b0e6181eb89c"
+  
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -266,51 +337,53 @@ jobs:
         environment: ${{ vars.ENVIRONMENT }}
         audience: ${{ vars.AUDIENCE }}
 
-    # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint AIB Role Deployment
+     # Checks that all Bicep configuration files adhere to a canonical format
+    - name: Bicep Lint Jump Spoke Deployment
       uses: Azure/cli@v2
       with:
         inlineScript: |
-          az bicep build --file jumpbox/createsubscriptionroles.bicep
-
+          az bicep build --file jumpbox/azuredeploy.bicep
+        
     # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate
+    - name: Bicep Validate Jumpbox Template Deployment
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
         type: deployment
         operation: validate
-        name: validate-${{ github.run_id }}
-        location: ${{ vars.LOCATION }}
-        scope: subscription
+        name: validate-CreateJumpBoxImageTemplate
+        scope: resourceGroup
+        resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./jumpbox/createsubscriptionroles.bicep
+        template-file: ./jumpbox/azuredeploy.bicep 
+        parameters: '{"location": ${{ vars.LOCATION }}, "buildInSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "imageBuilderNetworkingRoleGuid": ${{ env.ROLEID_NETWORKING }}, "imageBuilderImageCreationRoleGuid": ${{ env.ROLEID_IMGDEPLOY }}}'
 
     # Preview changes
-    - name: "What-If"
+    - name: "What-If Jumpbox Template Deployment"
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
         type: deployment
         operation: whatIf
-        name: whatif-${{ github.run_id }}
-        location: ${{ vars.LOCATION }}
-        scope: subscription
+        name: whatif-CreateJumpBoxImageTemplate
+        scope: resourceGroup
+        resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./jumpbox/createsubscriptionroles.bicep
-
+        template-file: ./jumpbox/azuredeploy.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "buildInSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "imageBuilderNetworkingRoleGuid": ${{ env.ROLEID_NETWORKING }}, "imageBuilderImageCreationRoleGuid": ${{ env.ROLEID_IMGDEPLOY }}}'
 
     # Deploy
-    - name: "Bicep Deployment"
+    - name: "Jumpbox Template Bicep Deployment"
       uses: Azure/bicep-deploy@v2
       with:
         environment: 'azureUSGovernment'
         type: deployment
         operation: create
-        name: DeployAibRbacRoles
-        location: usgovarizona
-        scope: subscription
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./jumpbox/createsubscriptionroles.bicep
+        name: CreateJumpBoxImageTemplate
+        scope: resourceGroup
+        resource-group-name: rg-bu0001a0005 
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: ./jumpbox/azuredeploy.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "buildInSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "imageBuilderNetworkingRoleGuid": ${{ env.ROLEID_NETWORKING }}, "imageBuilderImageCreationRoleGuid": ${{ env.ROLEID_IMGDEPLOY }}}'
         
         
