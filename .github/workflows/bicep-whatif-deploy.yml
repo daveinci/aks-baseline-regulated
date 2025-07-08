@@ -69,7 +69,42 @@ jobs:
         scope: subscription
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         parameters-file: ./subscription.bicepparam
-        # validation-level: 'providerNoRbac'         
+
+  deploy-sub:
+    name: 'Deploy Subscription Bicep'
+    if: github.ref == 'refs/heads/main' 
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: [prep-sub]
+    
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }} 
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        environment: 'azureUSGovernment'
+        audience: api://AzureADTokenExchangeUSGov
+        
+    # Deploy
+    - name: "Bicep Deployment"
+      uses: Azure/bicep-deploy@v2
+      with:
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: deploy-${{ github.run_id }}
+        location: usgovarizona
+        scope: subscription
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        parameters-file: ./subscription.bicepparam
+        
         
   # deploy-hub:
   #   name: 'Bicep Whatif'
