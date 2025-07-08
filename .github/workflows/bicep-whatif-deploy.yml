@@ -216,16 +216,16 @@ jobs:
         template-file: ./networking/spoke-BU0001A0005-00.bicep
         parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.HUB_VNET_ID }}}'
 
-    # # Deploy
-    # - name: "Jump Spoke Bicep Deployment"
-    #   uses: Azure/bicep-deploy@v2
-    #   with:
-    #     environment: 'azureUSGovernment'
-    #     type: deployment
-    #     operation: create
-    #     name: deploy-${{ github.run_id }}
-    #     scope: resourceGroup
-    #     resource-group-name: rg-enterprise-networking-spokes 
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-    #     template-file: ./networking/spoke-BU0001A0005-00.bicep
-    #     parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ needs.deploy-hub.outputs.hubVnetResourceId }}}'
+    # Deploy
+    - name: "Jump Spoke Bicep Deployment"
+      uses: Azure/bicep-deploy@v2
+      with:
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: deploy-${{ github.run_id }}
+        scope: resourceGroup
+        resource-group-name: rg-enterprise-networking-spokes 
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: ./networking/spoke-BU0001A0005-00.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": {{ env.HUB_VNET_ID }}}'
