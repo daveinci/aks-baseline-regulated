@@ -16,152 +16,152 @@ permissions:
 
 
 jobs:
-  prep-sub:
-    name: 'Prepare Cluster Subscription'
-    environment: prod
-    runs-on: ubuntu-latest
+  # prep-sub:
+  #   name: 'Prepare Cluster Subscription'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
 
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    # Authenticate to Az CLI using OIDC
-    - name: 'Az CLI login'
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        environment: ${{ vars.ENVIRONMENT }}
-        audience: ${{ vars.AUDIENCE }}
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
 
-    # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint Subscription Deployment
-      uses: Azure/cli@v2
-      with:
-        inlineScript: |
-          az bicep build --file subscription.bicep
+  #   # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Subscription Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file subscription.bicep
 
-    # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: validate
-        name: validate-${{ github.run_id }}
-        location: ${{ vars.LOCATION }}
-        scope: subscription
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        parameters-file: ./subscription.bicepparam
-        # validation-level: 'providerNoRbac'     
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       parameters-file: ./subscription.bicepparam
+  #       # validation-level: 'providerNoRbac'     
 
-    # Preview changes
-    - name: "What-If"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: whatIf
-        name: whatif-${{ github.run_id }}
-        location: ${{ vars.LOCATION }}
-        scope: subscription
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        parameters-file: ./subscription.bicepparam
+  #   # Preview changes
+  #   - name: "What-If"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       parameters-file: ./subscription.bicepparam
 
-    # Deploy
-    - name: "Bicep Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: 'azureUSGovernment'
-        type: deployment
-        operation: create
-        name: deploy-${{ github.run_id }}
-        location: usgovarizona
-        scope: subscription
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        parameters-file: ./subscription.bicepparam
+  #   # Deploy
+  #   - name: "Bicep Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: deploy-${{ github.run_id }}
+  #       location: usgovarizona
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       parameters-file: ./subscription.bicepparam
                         
-  deploy-hub:
-    name: 'Deploy hub'
-    environment: prod
-    runs-on: ubuntu-latest
-    needs: [prep-sub]
+  # deploy-hub:
+  #   name: 'Deploy hub'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+  #   needs: [prep-sub]
 
-    outputs:
-      hubVnetResourceId: ${{ steps.hub-deploy.outputs.hubVnetId }}
+  #   outputs:
+  #     hubVnetResourceId: ${{ steps.hub-deploy.outputs.hubVnetId }}
 
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    # Authenticate to Az CLI using OIDC
-    - name: 'Az CLI login'
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        environment: ${{ vars.ENVIRONMENT }}
-        audience: ${{ vars.AUDIENCE }}
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
 
-     # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint Hub Deployment
-      uses: Azure/cli@v2
-      with:
-        inlineScript: |
-          az bicep build --file networking/hub-region.v0.bicep
+  #    # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Hub Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file networking/hub-region.v0.bicep
         
-    # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate Hub Deployment
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: validate
-        name: validate-${{ github.run_id }}
-        scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./networking/hub-region.v0.bicep  
-        parameters: '{"location": ${{ vars.LOCATION }}}'
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate Hub Deployment
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-${{ github.run_id }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/hub-region.v0.bicep  
+  #       parameters: '{"location": ${{ vars.LOCATION }}}'
 
-    # Preview changes
-    - name: "What-If Hub Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: whatIf
-        name: whatif-${{ github.run_id }}
-        scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./networking/hub-region.v0.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}}'
+  #   # Preview changes
+  #   - name: "What-If Hub Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-${{ github.run_id }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/hub-region.v0.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}}'
 
-    # Deploy
-    - name: "Hub Bicep Deployment"
-      id: hub-deploy
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: 'azureUSGovernment'
-        type: deployment
-        operation: create
-        name: deploy-${{ github.run_id }}
-        scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: ./networking/hub-region.v0.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}}'
+  #   # Deploy
+  #   - name: "Hub Bicep Deployment"
+  #     id: hub-deploy
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: deploy-${{ github.run_id }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #       template-file: ./networking/hub-region.v0.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}}'
   
   deploy-jumpbox-imagebuilder:
     name: 'Deploy jumpbox image builder'
     environment: prod
     runs-on: ubuntu-latest
-    needs: [deploy-hub]
+    # needs: [deploy-hub]
     env:
       HUB_VNET_ID: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
 
@@ -229,3 +229,19 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./networking/spoke-BU0001A0005-00.bicep
         parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.HUB_VNET_ID }}}'
+
+    - name: "Update hub VNet"
+      env: 
+        RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+      uses: Azure/bicep-deploy@v2
+      with: 
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: update-hub-${{ github.run_id }}
+        scope: resourceGroup
+        resource-group-name: rg-enterprise-networking-hubs
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: networking/hub-region.v1.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}}'
+        
