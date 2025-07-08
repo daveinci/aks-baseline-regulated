@@ -123,7 +123,7 @@ jobs:
         resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep  
-        parameters: location=${{ vars.LOCATION }}
+        parameters: '{"location": ${{ vars.LOCATION }}}'
 
     # Preview changes
     - name: "What-If Hub Deployment"
@@ -137,8 +137,7 @@ jobs:
         resource-group-name: rg-enterprise-networking-hubs
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         template-file: ./networking/hub-region.v0.bicep
-        parameters: location=${{ vars.LOCATION }}
-
+        parameters: '{"location": ${{ vars.LOCATION }}}'
 
     # # Deploy
     # - name: "Hub Bicep Deployment"
@@ -150,8 +149,10 @@ jobs:
     #     name: deploy-${{ github.run_id }}
     #     scope: resourceGroup
     #     resource-group-name: rg-enterprise-networking-hubs
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
     #     template-file: ./networking/hub-region.v0.bicep
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}      
+    #     parameters: '{"location": ${{ vars.LOCATION }}}'
+  
     
 # Uncomment the following section to enable deployment after the what-if step
 # Note: This will deploy the Bicep template only if there are changes detected in the what-if step.
