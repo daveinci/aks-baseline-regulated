@@ -156,8 +156,11 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./networking/hub-region.v0.bicep
         parameters: '{"location": ${{ vars.LOCATION }}}'
+
+    - name: "Print hub deployment outputs"
+      run: |
+        echo "Hub VNet Resource ID: ${{ steps.hub-deploy.outputs.hubVnetId }}"
   
-    
   deploy-jumpbox-imagebuilder:
     name: 'Deploy jumpbox image builder'
     environment: prod
