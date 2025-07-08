@@ -1,0 +1,167 @@
+name: 'Bicep Whatif / Deploy'
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+#Special permissions required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+
+jobs:
+  prep-sub:
+    name: 'Prepare Cluster Subscription'
+    environment: prod
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Authenticate to Az CLI using OIDC
+    - name: 'Az CLI login'
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        environment: ${{ vars.ENVIRONMENT }}
+        audience: ${{ vars.AUDIENCE }}
+
+    # Checks that all Bicep configuration files adhere to a canonical format
+    - name: Bicep Lint Subscription Deployment
+      uses: Azure/cli@v2
+      with:
+        inlineScript: |
+          az bicep build --file subscription.bicep
+
+    # Validate whether a template is valid at subscription scope
+    - name: Bicep Validate
+      uses: Azure/bicep-deploy@v2
+      with:
+        environment: ${{ vars.ENVIRONMENT }}
+        type: deployment
+        operation: validate
+        name: validate-${{ github.run_id }}
+        location: ${{ vars.LOCATION }}
+        scope: subscription
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        parameters-file: ./subscription.bicepparam
+        # validation-level: 'providerNoRbac'     
+
+    # Preview changes
+    - name: "What-If"
+      uses: Azure/bicep-deploy@v2
+      with:
+        environment: ${{ vars.ENVIRONMENT }}
+        type: deployment
+        operation: whatIf
+        name: whatif-${{ github.run_id }}
+        location: ${{ vars.LOCATION }}
+        scope: subscription
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        parameters-file: ./subscription.bicepparam
+        # validation-level: 'providerNoRbac'         
+        
+  # deploy-hub:
+  #   name: 'Bicep Whatif'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
+
+  #    # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Hub Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file hub-region.v0.bicep
+        
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs-${{ vars.LOCATION }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/hub-region.v0.bicep  
+
+  #   # Preview changes
+  #   - name: "What-If"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-${{ github.run_id }}
+  #       location: ${{ vars.LOCATION }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs-${{ vars.LOCATION }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/hub-region.v0.bicep
+    
+# Uncomment the following section to enable deployment after the what-if step
+# Note: This will deploy the Bicep template only if there are changes detected in the what-if step.
+# If you want to deploy only when there are changes, you might need to implement a condition to check the output of the what-if step.           
+  # bicep-deploy:
+  #   name: 'Bicep Deploy'
+  #   #TODO can we easily determine if there are any changes to deploy?
+  #   if: github.ref == 'refs/heads/main' 
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ vars.ENVIRONMENT }}
+  #   needs: [bicep-whatif]
+    
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }} 
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: 'AzureUSGovernment'
+  #       audience: api://AzureADTokenExchangeUSGov
+        
+  #   # Deploy
+  #   - name: "Bicep Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: deploy-${{ github.run_id }}
+  #       location: usgovarizona
+  #       scope: subscription
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       # template-file: src/bicep/mlz.bicep
+  #       parameters-file: ./src/bicep/mlz.bicepparam
