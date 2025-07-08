@@ -139,19 +139,19 @@ jobs:
         template-file: ./networking/hub-region.v0.bicep
         parameters: '{"location": ${{ vars.LOCATION }}}'
 
-    # # Deploy
-    # - name: "Hub Bicep Deployment"
-    #   uses: Azure/bicep-deploy@v2
-    #   with:
-    #     environment: 'azureUSGovernment'
-    #     type: deployment
-    #     operation: create
-    #     name: deploy-${{ github.run_id }}
-    #     scope: resourceGroup
-    #     resource-group-name: rg-enterprise-networking-hubs
-    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-    #     template-file: ./networking/hub-region.v0.bicep
-    #     parameters: '{"location": ${{ vars.LOCATION }}}'
+    # Deploy
+    - name: "Hub Bicep Deployment"
+      uses: Azure/bicep-deploy@v2
+      with:
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: deploy-${{ github.run_id }}
+        scope: resourceGroup
+        resource-group-name: rg-enterprise-networking-hubs
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: ./networking/hub-region.v0.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}}'
   
     
 # Uncomment the following section to enable deployment after the what-if step
