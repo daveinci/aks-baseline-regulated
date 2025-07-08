@@ -90,7 +90,7 @@ jobs:
     needs: [prep-sub]
 
     outputs:
-      hubVnetResourceId: ${{ steps.hub-deploy.outputs.vnetHub.id }}
+      hubVnetResourceId: ${{ steps.hub-deploy.outputs.hubVnetId }}
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -227,4 +227,4 @@ jobs:
     #     resource-group-name: rg-enterprise-networking-spokes 
     #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
     #     template-file: ./networking/spoke-BU0001A0005-00.bicep
-    #     parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ needs.deploy-hub.outputs.vnetHub.id }}}'
+    #     parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ needs.deploy-hub.outputs.hubVnetResourceId }}}'
