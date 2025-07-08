@@ -126,9 +126,9 @@ resource imgtJumpBoxSpec 'Microsoft.VirtualMachineImages/imageTemplates@2024-02-
     source: {
       type: 'PlatformImage'
       publisher: 'Canonical'
-      offer: 'UbuntuServer'
-      sku: '18_04-lts-gen2'
-      version: 'latest'
+      offer: 'ubuntu-24_04-lts'
+      sku: 'server'
+      version: '24.04.202507010'
     }
     distribute: [
       {
