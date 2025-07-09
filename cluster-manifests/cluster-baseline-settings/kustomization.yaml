@@ -11,7 +11,7 @@ resources:
 - kured/kured.yaml
 images:
 - name: busybox
-  newName: acraksite2hif2xfui4.azurecr.us/live/library/busybox
+  newName: acrakszjhwrsnhrfmow.azurecr.us/live/library/busybox
   newTag: 1.36.1
 - name: ghcr.io/kubereboot/kured
-  newName: acraksite2hif2xfui4.azurecr.us/live/kubereboot/kured
+  newName: acrakszjhwrsnhrfmow.azurecr.us/live/kubereboot/kured
