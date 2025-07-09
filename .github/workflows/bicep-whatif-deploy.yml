@@ -475,73 +475,150 @@ jobs:
   #       template-file: networking/hub-region.v2.bicep
   #       parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "nodepoolSubnetResourceIds": ${{ env.RESOURCEID_SUBNET_NODEPOOLS }}, "aksJumpboxSubnetResourceId": ${{ env.RESOURCEID_SUBNET_JUMPBOX }}}'
 
-  deploy-pre-cluster-stamp:
-    name: 'Deploy pre-cluster stamp'
-    environment: prod
-    runs-on: ubuntu-latest
-    env:
-      RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
+  # deploy-pre-cluster-stamp:
+  #   name: 'Deploy pre-cluster stamp'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
   
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
 
-    # Authenticate to Az CLI using OIDC
-    - name: 'Az CLI login'
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        environment: ${{ vars.ENVIRONMENT }}
-        audience: ${{ vars.AUDIENCE }}
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
 
-     # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint Pre-Cluster Stamp Deployment
-      uses: Azure/cli@v2
-      with:
-        inlineScript: |
-          az bicep build --file pre-cluster-stamp.bicep
+  #    # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Pre-Cluster Stamp Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file pre-cluster-stamp.bicep
         
-    # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate Pre-Cluster Stamp Deployment
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: validate
-        name: validate-ClusterSpokeDeployment
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate Pre-Cluster Stamp Deployment
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
 
-    # Preview changes
-    - name: "What-If Pre-Cluster Stamp Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: whatIf
-        name: whatif-ClusterSpokeDeployment
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+  #   # Preview changes
+  #   - name: "What-If Pre-Cluster Stamp Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
 
-    # Deploy
-    - name: "Pre-Cluster Stamp Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: 'azureUSGovernment'
-        type: deployment
-        operation: create
-        name: spoke-BU0001A0005-01
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+  #   # Deploy
+  #   - name: "Pre-Cluster Stamp Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: spoke-BU0001A0005-01
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+
+    deploy-cluster-stamp:
+      name: 'Deploy cluster stamp'
+      environment: prod
+      runs-on: ubuntu-latest
+      env:
+        RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
+        RESOURCEID_IMAGE_JUMPBOX: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-bu0001a0005/providers/Microsoft.Compute/images/img-aksopsjb-20250709T042605"
+        OBJECTID_GROUP_CLUSTERADMIN: "f00a502c-3216-4f7e-ac60-439fe73fb447"
+        TENANTID_K8SRBAC: ${{ secrets.AZURE_TENANT_ID }}
+        APP_GATEWAY_LISTENER_CERTIFICATE_BASE64:  ${{ secrets.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}
+        CLOUDINIT_BASE64: "I2Nsb3VkLWNvbmZpZwp1c2VyczoKICAtIG5hbWU6IGxhYnVzZXIwMQogICAgc3VkbzogRmFsc2UKICAgIGxvY2tfcGFzc3dkOiBUcnVlCiAgICBzc2gtYXV0aG9yaXplZC1rZXlzOgogICAgICAtIHNzaC1yc2EgQUFBQUIzTnphQzF5YzJFQUFBQURBUUFCQUFBQ0FRRHZ2S0xMYXcwQ0xFY3pLTys4ekdBZEg5b3JjNFNheS83ZllHQ1YvbVN0amUyOG4zU1QrbThiQW1mRnZZSmk4aWt1VXJGczhTZ2NGUjBtb1NMZlE1TFBTWDVXZURsRHpHdkNGT0RxR3lBU0R4YmFTZjdVWjNVN0poWkQvWHc1c1hEZ09Vdnk1NXlDaTB4Y2Z1SzV5Q0FKcktmVC93bEJRKzFIbGQvS3BUZWM5UjFJdG51QjVZVW9jZjVnbTV3U1YxdDZvcE1LN2p3UFVRbFRDNXNidmtCMmZ1WWx5WURZWjY0SHJ3T3NJcFltR0o3QmZDZVNSNmZRUUh6d3VSR25neDJ1QWJxYWo2TnBhZldGTDAwaDhpMWhPRno5dmtwblMrODQzT3VqYUY0Q0pJYlNON0Z5OC9nWXRSRW5qWmFSRlVHRFdmWmkzVlloNnV2SnJMbk9NK3VuaGFoTGxMc05KT211ZWg0QmxzUWhoWVBRQWlmZ2szSHBBMlR2UC91bGNLQnpGcEVENjZKN21XSDlRcE1jSm1MVndDTmJRNzVGR1JrQ2FvN0FEdDVWZ0ozYUhINE9FaDNqQUlXVUd6NmtZdmlyanpWaU95blhFSzZsa3o0N3ZXMFhleGxvc3VWZmh2Vm1CakwvMm1nU1ZBemVEL3RxVU8xK09EbGh6clB4R3RnNHFmcmd4Qnc5aFYyMXlNODExQWZ4NldOeldVTzA1dXRNWmwvQnpIMlZzZzVBMU1SNTJ3SHNJck1JREFSQ25LQ0doT3R6ZkJzaS9CeXdUQWx5cGhkbjZxNVdQcUFVbis3NWo2RUZGVGFaVjduNzNVUnhJcmwrNnRpbno5NnJ3OTRBWW5VemRLMVR4ckUyWDZZU2I5YlduV1JUamhESSs3RnU4MWI3K2FHV0ZRPT0KICAtIG5hbWU6IGxhYnVzZXIwMgogICAgc3VkbzogRmFsc2UKICAgIGxvY2tfcGFzc3dkOiBUcnVlCiAgICBzc2gtYXV0aG9yaXplZC1rZXlzOgogICAgICAtIHNzaC1yc2EgQUFBQUIzTnphQzF5YzJFQUFBQURBUUFCQUFBQ0FRRERzMWZSYjNZTXhZRVA0b3lwWkUrYVNiY0RtVzdjb0lzUHFDM2gwL1NiejBMUExJazYrcHhnSk9neEppUDNGdE9SVW4zM25TdnpSd2hZYnNMeHhLa0lKb2hRYUlHN0dFQVNJbjZGQlBYZGxzTnNNM2gzbm9JU1RjTjMyRVJuTUZVRWtJU0N3V0JWRzlHUFFVMG03TzMyZEtOTkRpd3FpaFVLT0VIY2pXazFtczJvazdXVUZCWkxTLzdxc2dKaFlIaUZIWEQ2Ym4yWHVBandDMkVEU2tGeExmcHczTXk2OXg5dkFHYzhQSjM0UjJ6Y1JhTkg4UmhNVG5rcWVWeGdGOFB2YVp2SE5jdTNzN2hoc2Vpc0FFNk45ZUlzWHRlR3J6MzJRUmU3RWJkMW5QM1BjbGpidjMycU91bkFGOCtmd096Y2dvdzRiUVlqMnVOMTFwRThiSlcxZ21kTEYxcUdKQ2xqM05uSjNodU1weW1MazZYbzRxcWJaTUZrYlI5bXB2dXdkWlNqUnhPbVpQaHRIUjFKaURYVGZEb0UrTmdFdDNJSDdGNGdSSm0yYnRTTlZsSmFacVdTWVRhTG45QkhhLzdmVlNrcENRRU1PenhzaG5jVHNnMnBUSDJVWUdjZ3EyUWJTc2d1a0xvSWYzNXhOL1luVjNFNzg1cXNENUp0b094R0VlOVl3SkUvakM5ZDZwbjRiZkVUWitIcFFkYmNtb3lyQ3lsTGcrN2tZY2lJNitFbEMrcjN6NDBtRVdjcXdxTTlXZHRTYjIxREl6WnV4bE40VHZOaFExbXJqQXdqaHlwMWJseWJsblIxVHV1VWFzUjJDOU9EZW9zbFF3dlBoRFU0OUxpMTNhS1N4eGZtam9tVmszZDFlT29RZ2ZvRnRYd3hLVEdseDRYT2ZRPT0KICAtIG5hbWU6IGxhYmFkbQogICAgc3VkbzogQUxMPShBTEwpIE5PUEFTU1dEOkFMTAogICAgbG9ja19wYXNzd2Q6IFRydWUKICAgIHNzaC1hdXRob3JpemVkLWtleXM6CiAgICAgIC0gc3NoLXJzYSBBQUFBQjNOemFDMXljMkVBQUFBREFRQUJBQUFDQVFEazlaMThWTTdxZk5vaDdnanBTcENrY2x1L255em9ZeXFZWXc4ZlhIQmZqUzN5YUhkN2NSV3ZDclJ2SUE1NWpIL3FxY2ljMSsvRGQ5U3IzLzVIQmJhU01pNUdrZHIrbDVtVWdSMnRDaSthbDd4T29JZ3dRWW5IeVgzMnBQWUlXSFNpU25NSnNPQ21ZL2lqTE5HNVQ1UjBSUm41cXFiYTNsbnhpWFZZSjhvVEQzaTRyWmZLVG5yck1tYlFYMlpqZGMzZEl0YW5BNE9Kb2NpQ0tlSFhNOUtiVksvTksyR2RwUUIyK2czL3czdnhBT0E4RkhWdm9EQ0EvUVRxUFBQMkZRM0pyV0oreXBSMmhKNjBVbkxhNG9VajA2V2dhOHAvbUhxeTZMOWxkTXBPaUJ3RHAwZHdFcUs5bkpXRkIzSkJMdGF1WWFJUnBoeTZ6VmtJaG5KN1FSdEZuQUVDbGJXVFdhQzEvcjFtODFSUDRvZ0x1dTlOcisrazA3bmpsMFo5dEJXUEI2TDJCM0puTnlaZnpacCtCK3FROXE4Y2RiRG1oSzZhYmU1c0pIV2FsTWJsMEsvZGpqWTJXZDFhNEpLVnMrRnovVEJMN3NKMTNVU29kN2ZXbFZmc3oyOHdvSGt0NzBRakhFT2MrV1p6ejNZWlVoRE8yL0N4SjY0dW05QW1naE5VclhkcHNMVXVKMnVEUGxkVGVEVllQZ3NGTC9WOEtxQTBSOTlIdXNNZGgrR3ZmSUZHRWkvQi8rNCtEdGNzT2hkMGRqcWRseklyUzc3RytoTUFPZUZPZUh6NDVPOXVGZHNPR01qdHhHYzdDZmFheHpjMmdEU1grY0hNc3IvYk1DWFhVQnBxVjJyWjN6MUk5aW11VDlaYUczb253aUpEdk9TbHZLLytqaUp5SFE9PQ=="
+        GITOPS_REPOURL: "https://github.com/daveinci/aks-baseline-regulated.git"
+        GITOPS_CURRENT_BRANCH_NAME: "main"
+      steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate to Az CLI using OIDC
+      - name: 'Az CLI login'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          environment: ${{ vars.ENVIRONMENT }}
+          audience: ${{ vars.AUDIENCE }}
+
+      # Checks that all Bicep configuration files adhere to a canonical format
+      - name: Bicep Lint Cluster Stamp Deployment
+        uses: Azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep build --file cluster-stamp.bicep
+        
+      # Validate whether a template is valid at subscription scope
+      - name: Bicep Validate Cluster Stamp Deployment
+        uses: Azure/bicep-deploy@v2
+        with:
+          environment: ${{ vars.ENVIRONMENT }}
+          type: deployment
+          operation: validate
+          name: validate-ClusterDeployment
+          scope: resourceGroup
+          resource-group-name: rg-bu0001a0005 
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          template-file: ./cluster-stamp.bicep
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
+
+      # Preview changes
+      - name: "What-If Cluster Stamp Deployment"
+        uses: Azure/bicep-deploy@v2
+        with:
+          environment: ${{ vars.ENVIRONMENT }}
+          type: deployment
+          operation: whatIf
+          name: whatif-ClusterDeployment
+          scope: resourceGroup
+          resource-group-name: rg-bu0001a0005 
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          template-file: ./cluster-stamp.bicep
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
+
+      # Deploy
+      - name: "Cluster Stamp Deployment"
+        uses: Azure/bicep-deploy@v2
+        with:
+          environment: 'azureUSGovernment'
+          type: deployment
+          operation: create
+          name: cluster-stamp
+          scope: resourceGroup
+          resource-group-name: rg-bu0001a0005 
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+          template-file: ./cluster-stamp.bicep
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
