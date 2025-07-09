@@ -593,7 +593,7 @@ jobs:
           resource-group-name: rg-bu0001a0005 
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           template-file: ./cluster-stamp.bicep
-          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "clusterAdminEntraGroupObjectId": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
 
       # Preview changes
       - name: "What-If Cluster Stamp Deployment"
@@ -607,7 +607,7 @@ jobs:
           resource-group-name: rg-bu0001a0005 
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           template-file: ./cluster-stamp.bicep
-          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "clusterAdminEntraGroupObjectId": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
 
       # Deploy
       - name: "Cluster Stamp Deployment"
@@ -621,4 +621,4 @@ jobs:
           resource-group-name: rg-bu0001a0005 
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
           template-file: ./cluster-stamp.bicep
-          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
+          parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "clusterAdminEntraGroupObjectId": ${{ env.OBJECTID_GROUP_CLUSTERADMIN }}, "k8sControlPlaneAuthorizationTenantId": ${{ env.TENANTID_K8SRBAC }}, "appGatewayListenerCertificate": ${{ env.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}, "jumpBoxImageResourceId": ${{ env.RESOURCEID_IMAGE_JUMPBOX }}, "jumpBoxCloudInitAsBase64": ${{ env.CLOUDINIT_BASE64 }}, "gitOpsBootstrappingRepoHttpsUrl": ${{ env.GITOPS_REPOURL }}, "gitOpsBootstrappingRepoBranch": ${{ env.GITOPS_CURRENT_BRANCH_NAME }}}'
