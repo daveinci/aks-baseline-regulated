@@ -422,7 +422,7 @@ jobs:
         environment: ${{ vars.ENVIRONMENT }}
         type: deployment
         operation: validate
-        name: validate-CreateJumpBoxImageTemplate
+        name: validate-ClusterSpokeDeployment
         scope: resourceGroup
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -436,7 +436,7 @@ jobs:
         environment: ${{ vars.ENVIRONMENT }}
         type: deployment
         operation: whatIf
-        name: whatif-CreateJumpBoxImageTemplate
+        name: whatif-ClusterSpokeDeployment
         scope: resourceGroup
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -450,9 +450,27 @@ jobs:
         environment: 'azureUSGovernment'
         type: deployment
         operation: create
-        name: CreateJumpBoxImageTemplate
+        name: spoke-BU0001A0005-01
         scope: resourceGroup
         resource-group-name: rg-enterprise-networking-spokes 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: ./jnetworking/spoke-BU0001A0005-01.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'        
+        template-file: ./networking/spoke-BU0001A0005-01.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+
+    # Update hub to add subnet info for AIB    
+    - name: "Update hub VNet"
+      env: 
+        RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+        RESOURCEID_SUBNET_NODEPOOLS: ""
+        RESOURCEID_SUBNET_JUMPBOX: ""
+      uses: Azure/bicep-deploy@v2
+      with: 
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: update-hub-${{ github.run_id }}
+        scope: resourceGroup
+        resource-group-name: rg-enterprise-networking-hubs
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: networking/hub-region.v2.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "nodepoolSubnetResourceIds": ${{ env.RESOURCEID_SUBNET_NODEPOOLS }}, "aksJumpboxSubnetResourceId": ${{ env.RESOURCEID_SUBNET_JUMPBOX }}}'
