@@ -594,7 +594,7 @@ resource vmssJumpboxes 'Microsoft.Compute/virtualMachineScaleSets@2020-12-01' = 
   location: location
   // zones: pickZones('Microsoft.Compute', 'virtualMachineScaleSets', location, 3)
   sku: {
-    name: 'Standard_D2ds_v4'
+    name: 'Standard_D4ds_v5'
     tier: 'Standard'
     capacity: 2
   }
@@ -1019,7 +1019,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npsystem'
         count: 3
-        vmSize: 'Standard_D2as_v4'
+        vmSize: 'Standard_D4ds_v5'
         osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -1053,7 +1053,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npinscope01'
         count: 2
-        vmSize: 'Standard_D2as_v4'
+        vmSize: 'Standard_D4ds_v5'
         osDiskSizeGB: 120
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -1087,7 +1087,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npooscope01'
         count: 2
-        vmSize: 'Standard_D2as_v4'
+        vmSize: 'Standard_D4ds_v5'
         osDiskSizeGB: 120
         osDiskType: 'Ephemeral'
         osType: 'Linux'
