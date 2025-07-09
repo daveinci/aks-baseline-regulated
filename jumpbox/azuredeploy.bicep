@@ -175,7 +175,7 @@ resource imgtJumpBoxSpec 'Microsoft.VirtualMachineImages/imageTemplates@2024-02-
         name: 'Install Azure CLI extensions'
         inline: [
           'echo "Starting AZ CLI extension add"'
-          'sudo az extension add -n aks-preview'
+          'sudo az extension add -n aks-preview --allow-preview true'
           'az --version'
           'echo "Completed AZ CLI extension add"'
         ]
@@ -205,23 +205,11 @@ resource imgtJumpBoxSpec 'Microsoft.VirtualMachineImages/imageTemplates@2024-02-
         name: 'Install workload identity tooling'
         inline: [
           'echo "Starting k8s workload identity CLI install"'
-          'wget -c https://github.com/Azure/azure-workload-identity/releases/download/v0.8.0/azwi-v0.8.0-linux-amd64.tar.gz -O azwi-binary.tar.gz'
+          'wget -c https://github.com/Azure/azure-workload-identity/releases/download/v1.5.1/azwi-v1.5.1-linux-amd64.tar.gz -O azwi-binary.tar.gz'
           'tar -xvf ./azwi-binary.tar.gz azwi'
           'sudo mv azwi /usr/local/bin/azwi'
           'rm -Rf azwi azwi-binary.tar.gz'
           'echo "Completed k8s workload identity CLI install"'
-        ]
-      }
-      {
-        type: 'Shell'
-        name: 'Install Open Service Mesh tooling'
-        inline: [
-          'echo "Starting OSM install"'
-          'wget -c https://github.com/openservicemesh/osm/releases/download/v1.0.0/osm-v1.0.0-linux-amd64.tar.gz -O osm-binary.tar.gz'
-          'tar -xvf ./osm-binary.tar.gz'
-          'sudo mv ./linux-amd64/osm /usr/local/bin/osm'
-          'rm -Rf ./linux-amd64 osm-binary.tar.gz'
-          'echo "Completed OSM install"'
         ]
       }
       {
