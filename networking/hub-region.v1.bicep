@@ -637,7 +637,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
 #disable-next-line no-hardcoded-env-urls
                   'azcliextensionsync.blob.core.windows.net'
 #disable-next-line no-hardcoded-env-urls
-                  'azurecliprod.blob.core.windows.net'
+                  'azcliprod.blob.core.windows.net'
                 ]
             }
             {
