@@ -1145,7 +1145,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
           ]
         }
         revisions: [
-          'asm-1-20'
+          'asm-1-25'
         ]
       }
       mode: 'Istio'
