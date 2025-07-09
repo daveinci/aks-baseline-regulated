@@ -1019,7 +1019,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npsystem'
         count: 3
-        vmSize: 'Standard_DS2_v2'
+        vmSize: 'Standard_D2as_v4'
         osDiskSizeGB: 80
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -1053,7 +1053,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npinscope01'
         count: 2
-        vmSize: 'Standard_DS3_v2'
+        vmSize: 'Standard_D2as_v4'
         osDiskSizeGB: 120
         osDiskType: 'Ephemeral'
         osType: 'Linux'
@@ -1087,7 +1087,7 @@ resource mc 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
       {
         name: 'npooscope01'
         count: 2
-        vmSize: 'Standard_DS3_v2'
+        vmSize: 'Standard_D2as_v4'
         osDiskSizeGB: 120
         osDiskType: 'Ephemeral'
         osType: 'Linux'
