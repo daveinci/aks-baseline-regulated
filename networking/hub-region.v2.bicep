@@ -795,7 +795,10 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 #disable-next-line no-hardcoded-env-urls
                 'azurecliextensionsync.blob.core.windows.net'
                 #disable-next-line no-hardcoded-env-urls
+                'azcliprod.blob.core.windows.net'
+                #disable-next-line no-hardcoded-env-urls
                 'azurecliprod.blob.core.windows.net'
+
               ]
             }
             {
@@ -816,6 +819,8 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 'api.github.com'
                 'github-releases.githubusercontent.com'
                 'github.com'
+                'dl.k8s.io'
+                'cdn.dl.k8s.io'                
               ]
             }
             {
