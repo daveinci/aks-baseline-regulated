@@ -386,12 +386,101 @@ jobs:
   #       template-file: ./jumpbox/azuredeploy.bicep
   #       parameters: '{"location": ${{ vars.LOCATION }}, "buildInSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "imageBuilderNetworkingRoleGuid": ${{ env.ROLEID_NETWORKING }}, "imageBuilderImageCreationRoleGuid": ${{ env.ROLEID_IMGDEPLOY }}}'
         
-  deploy-cluster-spoke:
-    name: 'Deploy cluster spoke'
+  # deploy-cluster-spoke:
+  #   name: 'Deploy cluster spoke'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     RESOURCEID_VNET_HUB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
+  
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
+
+  #    # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Cluster Spoke Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file networking/spoke-BU0001A0005-01.bicep
+        
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate Cluster Spoke Deployment
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-spokes 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/spoke-BU0001A0005-01.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+
+  #   # Preview changes
+  #   - name: "What-If Cluster Spoke Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-spokes 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./networking/spoke-BU0001A0005-01.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+
+  #   # Deploy
+  #   - name: "Cluster Spoke Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: spoke-BU0001A0005-01
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-spokes 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #       template-file: ./networking/spoke-BU0001A0005-01.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+
+  #   # Update hub to add subnet info for AIB    
+  #   - name: "Update hub VNet"
+  #     env: 
+  #       RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+  #       RESOURCEID_SUBNET_NODEPOOLS: "['/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-systemnodepool','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-inscopenodepools','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-outofscopenodepools']"
+  #       RESOURCEID_SUBNET_JUMPBOX: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-management-ops"
+  #     uses: Azure/bicep-deploy@v2
+  #     with: 
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: update-hub-${{ github.run_id }}
+  #       scope: resourceGroup
+  #       resource-group-name: rg-enterprise-networking-hubs
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #       template-file: networking/hub-region.v2.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "nodepoolSubnetResourceIds": ${{ env.RESOURCEID_SUBNET_NODEPOOLS }}, "aksJumpboxSubnetResourceId": ${{ env.RESOURCEID_SUBNET_JUMPBOX }}}'
+
+  deploy-pre-cluster-stamp:
+    name: 'Deploy pre-cluster stamp'
     environment: prod
     runs-on: ubuntu-latest
     env:
-      RESOURCEID_VNET_HUB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
+      RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
   
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -409,14 +498,14 @@ jobs:
         audience: ${{ vars.AUDIENCE }}
 
      # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint Cluster Spoke Deployment
+    - name: Bicep Lint Pre-Cluster Stamp Deployment
       uses: Azure/cli@v2
       with:
         inlineScript: |
           az bicep build --file networking/spoke-BU0001A0005-01.bicep
         
     # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate Cluster Spoke Deployment
+    - name: Bicep Validate Pre-Cluster Stamp Deployment
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
@@ -424,13 +513,13 @@ jobs:
         operation: validate
         name: validate-ClusterSpokeDeployment
         scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-spokes 
+        resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./networking/spoke-BU0001A0005-01.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+        template-file: ./pre-cluster-stamp.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
 
     # Preview changes
-    - name: "What-If Cluster Spoke Deployment"
+    - name: "What-If Pre-Cluster Stamp Deployment"
       uses: Azure/bicep-deploy@v2
       with:
         environment: ${{ vars.ENVIRONMENT }}
@@ -438,13 +527,13 @@ jobs:
         operation: whatIf
         name: whatif-ClusterSpokeDeployment
         scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-spokes 
+        resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./networking/spoke-BU0001A0005-01.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
+        template-file: ./pre-cluster-stamp.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
 
     # Deploy
-    - name: "Cluster Spoke Deployment"
+    - name: "Pre-Cluster Stamp Deployment"
       uses: Azure/bicep-deploy@v2
       with:
         environment: 'azureUSGovernment'
@@ -452,25 +541,7 @@ jobs:
         operation: create
         name: spoke-BU0001A0005-01
         scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-spokes 
+        resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: ./networking/spoke-BU0001A0005-01.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.RESOURCEID_VNET_HUB }}}'
-
-    # Update hub to add subnet info for AIB    
-    - name: "Update hub VNet"
-      env: 
-        RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
-        RESOURCEID_SUBNET_NODEPOOLS: "['/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-systemnodepool','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-inscopenodepools','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-outofscopenodepools']"
-        RESOURCEID_SUBNET_JUMPBOX: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-management-ops"
-      uses: Azure/bicep-deploy@v2
-      with: 
-        environment: 'azureUSGovernment'
-        type: deployment
-        operation: create
-        name: update-hub-${{ github.run_id }}
-        scope: resourceGroup
-        resource-group-name: rg-enterprise-networking-hubs
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: networking/hub-region.v2.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "nodepoolSubnetResourceIds": ${{ env.RESOURCEID_SUBNET_NODEPOOLS }}, "aksJumpboxSubnetResourceId": ${{ env.RESOURCEID_SUBNET_JUMPBOX }}}'
+        template-file: ./pre-cluster-stamp.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, ""targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
