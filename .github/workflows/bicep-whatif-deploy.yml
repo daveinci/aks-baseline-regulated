@@ -502,7 +502,7 @@ jobs:
       uses: Azure/cli@v2
       with:
         inlineScript: |
-          az bicep build --file networking/spoke-BU0001A0005-01.bicep
+          az bicep build --file pre-cluster-stamp.bicep
         
     # Validate whether a template is valid at subscription scope
     - name: Bicep Validate Pre-Cluster Stamp Deployment
@@ -544,4 +544,4 @@ jobs:
         resource-group-name: rg-bu0001a0005 
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, ""targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
