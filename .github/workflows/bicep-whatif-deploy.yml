@@ -313,6 +313,7 @@ jobs:
   #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
   #       template-file: ./jumpbox/createsubscriptionroles.bicep
 
+  # Must register Public Preview feature for Image Builder "az feature register --namespace Microsoft.VirtualMachineImages --name FairfaxPublicPreview"
   deploy-jumpbox-template:
     name: 'Deploy jumpbox image template'
     environment: prod
