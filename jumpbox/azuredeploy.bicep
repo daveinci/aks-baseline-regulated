@@ -22,8 +22,7 @@ param imageBuilderImageCreationRoleGuid string
 
 @description('Optional. Set the output name for the image template resource, needs to be unique within the resource group.')
 @minLength(1)
-// param imageTemplateName string = 'imgt-aksopsjb-${utcNow('yyyyMMddTHHmmss')}'
-param imageTemplateName string = 'imgt-aksopsjb-${utcNow('yyyyMMdd')}'
+param imageTemplateName string = 'imgt-aksopsjb-${utcNow('yyyyMMddTHHmmss')}'
 
 @description('The name of the exisiting Resource Group in which the managed VM image resource will be deployed to. It can be the same as this deployment\'s Resource Group and/or the vnet Resource Group.')
 @minLength(1)

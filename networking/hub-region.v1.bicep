@@ -656,10 +656,11 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 ]
                 targetFqdns: [
                   'objects.githubusercontent.com'
-                  'storage.googleapis.com'
                   'api.github.com'
                   'github-releases.githubusercontent.com'
+                  'release-assets.githubusercontent.com'
                   'github.com'
+                  'storage.googleapis.com'
                   'dl.k8s.io'
                   'cdn.dl.k8s.io'
                 ]
