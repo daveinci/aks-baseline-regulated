@@ -703,8 +703,8 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
               ]
             }
             {
-              name: 'install-open-service-mesh'
-              description: 'This is required as the Packer VMs needs to install open service mesh cli. [Step performed in the referenced jump box building process. Not needed if your jump box building process doesn\'t do this.]'
+              name: 'install-ansible-stigs'
+              description: 'This is required as the Packer VMs needs to install ansible and ansible STIGs. [Step performed in the referenced jump box building process. Not needed if your jump box building process doesn\'t do this.]'
               sourceIpGroups: [
                 resourceId('Microsoft.Network/ipGroups', imageBuilder_ipgroups.name)
               ]
@@ -715,8 +715,7 @@ resource hubFirewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
                 }
               ]
               targetFqdns: [
-                'github.com'
-                'github-releases.githubusercontent.com'
+                'dl.dod.cyber.mil'
               ]
             }
             {
