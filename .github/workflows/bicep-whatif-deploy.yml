@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [deploy-hub]
     env:
-      HUB_VNET_ID: "/subscriptions/fe51dbbd-cf6a-4fce-9cf3-9ede9ed9f693/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
+      HUB_VNET_ID: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
 
     
     steps:
@@ -230,21 +230,21 @@ jobs:
         template-file: ./networking/spoke-BU0001A0005-00.bicep
         parameters: '{"location": ${{ vars.LOCATION }}, "hubVnetResourceId": ${{ env.HUB_VNET_ID }}}'
 
-  #   # Update hub to add subnet info for AIB    
-  #   - name: "Update hub VNet"
-  #     env: 
-  #       RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
-  #     uses: Azure/bicep-deploy@v2
-  #     with: 
-  #       environment: 'azureUSGovernment'
-  #       type: deployment
-  #       operation: create
-  #       name: update-hub-${{ github.run_id }}
-  #       scope: resourceGroup
-  #       resource-group-name: rg-enterprise-networking-hubs
-  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-  #       template-file: networking/hub-region.v1.bicep
-  #       parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}}'
+    # Update hub to add subnet info for AIB    
+    - name: "Update hub VNet"
+      env: 
+        RESOURCEID_SUBNET_AIB: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+      uses: Azure/bicep-deploy@v2
+      with: 
+        environment: 'azureUSGovernment'
+        type: deployment
+        operation: create
+        name: update-hub-${{ github.run_id }}
+        scope: resourceGroup
+        resource-group-name: rg-enterprise-networking-hubs
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+        template-file: networking/hub-region.v1.bicep
+        parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}}'
 
   # deploy-custom-roles:
   #   name: 'Deploy custom AIB roles'
@@ -318,7 +318,7 @@ jobs:
   #   environment: prod
   #   runs-on: ubuntu-latest
   #   env:
-  #     RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+  #     RESOURCEID_SUBNET_AIB: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
   #     ROLEID_NETWORKING: "37f5932f-be03-5e91-b655-a2cae1ab3d17"
   #     ROLEID_IMGDEPLOY: "013337e2-e391-5fec-9779-b0e6181eb89c"
   
@@ -391,7 +391,7 @@ jobs:
   #   environment: prod
   #   runs-on: ubuntu-latest
   #   env:
-  #     RESOURCEID_VNET_HUB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
+  #     RESOURCEID_VNET_HUB: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
   
   #   steps:
   #   # Checkout the repository to the GitHub Actions runner
@@ -460,9 +460,9 @@ jobs:
   #   # Update hub to add subnet info for AIB    
   #   - name: "Update hub VNet"
   #     env: 
-  #       RESOURCEID_SUBNET_AIB: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
-  #       RESOURCEID_SUBNET_NODEPOOLS: "['/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-systemnodepool','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-inscopenodepools','/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-outofscopenodepools']"
-  #       RESOURCEID_SUBNET_JUMPBOX: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-management-ops"
+  #       RESOURCEID_SUBNET_AIB: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
+  #       RESOURCEID_SUBNET_NODEPOOLS: "['/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-systemnodepool','/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-inscopenodepools','/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-cluster-outofscopenodepools']"
+  #       RESOURCEID_SUBNET_JUMPBOX: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01/subnets/snet-management-ops"
   #     uses: Azure/bicep-deploy@v2
   #     with: 
   #       environment: 'azureUSGovernment'
@@ -480,7 +480,7 @@ jobs:
   #   environment: prod
   #   runs-on: ubuntu-latest
   #   env:
-  #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
+  #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
   
   #   steps:
   #   # Checkout the repository to the GitHub Actions runner
@@ -551,8 +551,8 @@ jobs:
     #   environment: prod
     #   runs-on: ubuntu-latest
     #   env:
-    #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
-    #     RESOURCEID_IMAGE_JUMPBOX: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-bu0001a0005/providers/Microsoft.Compute/images/img-aksopsjb-20250709T042605"
+    #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
+    #     RESOURCEID_IMAGE_JUMPBOX: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-bu0001a0005/providers/Microsoft.Compute/images/img-aksopsjb-20250709T042605"
     #     OBJECTID_GROUP_CLUSTERADMIN: "f00a502c-3216-4f7e-ac60-439fe73fb447"
     #     TENANTID_K8SRBAC: ${{ secrets.AZURE_TENANT_ID }}
     #     APP_GATEWAY_LISTENER_CERTIFICATE_BASE64:  ${{ secrets.APP_GATEWAY_LISTENER_CERTIFICATE_BASE64 }}
