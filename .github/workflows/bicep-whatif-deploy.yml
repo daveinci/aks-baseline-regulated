@@ -386,7 +386,15 @@ jobs:
         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
         template-file: ./jumpbox/azuredeploy.bicep
         parameters: '{"location": ${{ vars.LOCATION }}, "buildInSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "imageBuilderNetworkingRoleGuid": ${{ env.ROLEID_NETWORKING }}, "imageBuilderImageCreationRoleGuid": ${{ env.ROLEID_IMGDEPLOY }}}'
-        
+    
+    # Build the image
+    - name: "Build Jumpbox Image"
+      uses: Azure/cli@v2
+      with:
+        inlineScript: |
+          IMAGE_TEMPLATE_NAME=$(az deployment group show -g rg-bu0001a0005 -n CreateJumpBoxImageTemplate --query 'properties.outputs.imageTemplateName.value' -o tsv)
+          az image builder run -n $IMAGE_TEMPLATE_NAME -g rg-bu0001a0005
+      
   # deploy-cluster-spoke:
   #   name: 'Deploy cluster spoke'
   #   environment: prod
