@@ -163,7 +163,7 @@ jobs:
     runs-on: ubuntu-latest
     # needs: [deploy-hub]
     env:
-      HUB_VNET_ID: "/subscriptions/e988adf3-139b-452f-9468-e395fb31b1be/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
+      HUB_VNET_ID: "/subscriptions/fe51dbbd-cf6a-4fce-9cf3-9ede9ed9f693/resourceGroups/rg-enterprise-networking-hubs/providers/Microsoft.Network/virtualNetworks/vnet-usgovarizona-hub"
 
     
     steps:
