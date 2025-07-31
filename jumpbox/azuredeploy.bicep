@@ -224,6 +224,19 @@ resource imgtJumpBoxSpec 'Microsoft.VirtualMachineImages/imageTemplates@2024-02-
           'echo "Completed Terraform install"'
         ]
       }
+      {
+        type: 'Shell'
+        name: 'Install Ansible STIGs'
+        inline: [
+          'echo "Starting Ansible STIGs install"'
+          'sudo apt-get -yq install ansible'
+          'curl -LO https://dl.dod.cyber.mil/wp-content/uploads/stigs/zip/U_CAN_Ubuntu_22-04_LTS_V2R4_STIG_Ansible.zip'
+          'sudo mkdir -p /opt/ansible/stigs'
+          'sudo unzip -o U_CAN_Ubuntu_22-04_LTS_V2R4_STIG_Ansible.zip -d /opt/ansible/stigs'
+          'rm -f U_CAN_Ubuntu_22-04_LTS_V2R4_STIG_Ansible.zip'
+          'echo "Completed Ansible STIGs install"'
+        ]
+      }      
     ]
   }
 }
