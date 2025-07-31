@@ -319,8 +319,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       RESOURCEID_SUBNET_AIB: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-00/subnets/snet-imagebuilder"
-      ROLEID_NETWORKING: "37f5932f-be03-5e91-b655-a2cae1ab3d17"
-      ROLEID_IMGDEPLOY: "013337e2-e391-5fec-9779-b0e6181eb89c"
+      ROLEID_NETWORKING: "356639d0-ea13-5819-a377-e8c0701f66fa"
+      ROLEID_IMGDEPLOY: "0c918cf1-7459-5884-af3c-26126456234c"
   
     steps:
     # Checkout the repository to the GitHub Actions runner
