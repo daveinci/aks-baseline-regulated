@@ -484,13 +484,89 @@ jobs:
   #       template-file: networking/hub-region.v2.bicep
   #       parameters: '{"location": ${{ vars.LOCATION }}, "aksImageBuilderSubnetResourceId": ${{ env.RESOURCEID_SUBNET_AIB }}, "nodepoolSubnetResourceIds": ${{ env.RESOURCEID_SUBNET_NODEPOOLS }}, "aksJumpboxSubnetResourceId": ${{ env.RESOURCEID_SUBNET_JUMPBOX }}}'
 
-  deploy-pre-cluster-stamp:
-    name: 'Deploy pre-cluster stamp'
+  # deploy-pre-cluster-stamp:
+  #   name: 'Deploy pre-cluster stamp'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
+  
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
+
+  #    # Checks that all Bicep configuration files adhere to a canonical format
+  #   - name: Bicep Lint Pre-Cluster Stamp Deployment
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         az bicep build --file pre-cluster-stamp.bicep
+        
+  #   # Validate whether a template is valid at subscription scope
+  #   - name: Bicep Validate Pre-Cluster Stamp Deployment
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: validate
+  #       name: validate-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+
+  #   # Preview changes
+  #   - name: "What-If Pre-Cluster Stamp Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       type: deployment
+  #       operation: whatIf
+  #       name: whatif-ClusterSpokeDeployment
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+
+  #   # Deploy
+  #   - name: "Pre-Cluster Stamp Deployment"
+  #     uses: Azure/bicep-deploy@v2
+  #     with:
+  #       environment: 'azureUSGovernment'
+  #       type: deployment
+  #       operation: create
+  #       name: pre-cluster-stamp
+  #       scope: resourceGroup
+  #       resource-group-name: rg-bu0001a0005 
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
+  #       template-file: ./pre-cluster-stamp.bicep
+  #       parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
+  
+  # Quarantine
+  impoort-images-to-quarantine:
+    name: 'Import images to quarantine'
     environment: prod
     runs-on: ubuntu-latest
     env:
-      RESOURCEID_VNET_CLUSTERSPOKE: "/subscriptions/${{secrets.AZURE_SUBSCRIPTION_ID}}/resourceGroups/rg-enterprise-networking-spokes/providers/Microsoft.Network/virtualNetworks/vnet-spoke-BU0001A0005-01"
-  
+      FALCO_NO_DRIVER_TAG: "0.39.2"
+      FALCO_DRIVER_LOADER_TAG: "0.41.3"
+      FALCOCTL_TAG: "0.11.2"
+      BUSYBOX_TAG: "1.37.0"
+      KURED_TAG: "1.17.1"
+
     steps:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
@@ -506,55 +582,58 @@ jobs:
         environment: ${{ vars.ENVIRONMENT }}
         audience: ${{ vars.AUDIENCE }}
 
-     # Checks that all Bicep configuration files adhere to a canonical format
-    - name: Bicep Lint Pre-Cluster Stamp Deployment
+    # Import images to quarantine with az CLI (pre-cluster-stamp)
+    - name: 'CLI Import Images to Quarantine'
       uses: Azure/cli@v2
       with:
         inlineScript: |
-          az bicep build --file pre-cluster-stamp.bicep
+          ACR_NAME_QUARANTINE=$(az deployment group show -g rg-bu0001a0005 -n spoke-BU0001A0005-01 --query properties.outputs.quarantineContainerRegistryName.value -o tsv)
+          az acr import --source docker.io/falcosecurity/falco-no-driver:${{env.FALCO_NO_DRIVER_TAG}} -t quarantine/falcosecurity/falco-no-driver:${{env.FALCO_NO_DRIVER_TAG}} -n $ACR_NAME_QUARANTINE
+          az acr import --source docker.io/falcosecurity/falco-driver-loader:${{env.FALCO_DRIVER_LOADER_TAG}} -t quarantine/falcosecurity/falco-driver-loader:${{env.FALCO_DRIVER_LOADER_TAG}} -n $ACR_NAME_QUARANTINE
+          az acr import --source docker.io/falcosecurity/falcoctl:${{env.FALCOCTL_TAG}} -t quarantine/falcosecurity/falcoctl:${{env.FALCOCTL_TAG}} -n $ACR_NAME_QUARANTINE
+          az acr import --source docker.io/library/busybox:${{env.BUSYBOX_TAG}} -t quarantine/library/busybox:${{env.BUSYBOX_TAG}} -n $ACR_NAME_QUARANTINE
+          az acr import --source ghcr.io/kubereboot/kured:${{env.KURED_TAG}} -t quarantine/kubereboot/kured:${{env.KURED_TAG}} -n $ACR_NAME_QUARANTINE 
+
+  # # Clean
+  # copy-images-to-clean:
+  #   name: 'Copy images to clean'
+  #   environment: prod
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     FALCO_NO_DRIVER_TAG: "0.39.2"
+  #     FALCO_DRIVER_LOADER_TAG: "0.41.3"
+  #     FALCOCTL_TAG: "0.11.2"
+  #     BUSYBOX_TAG: "1.37.0"
+  #     KURED_TAG: "1.17.1"
+
+  #   steps:
+  #   # Checkout the repository to the GitHub Actions runner
+  #   - name: Checkout
+  #     uses: actions/checkout@v4
+
+  #   # Authenticate to Az CLI using OIDC
+  #   - name: 'Az CLI login'
+  #     uses: azure/login@v2
+  #     with:
+  #       client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #       tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #       subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #       environment: ${{ vars.ENVIRONMENT }}
+  #       audience: ${{ vars.AUDIENCE }}
+
+  #   # Import images to quarantine with az CLI
+  #   - name: 'CLI Import Images to Quarantine'
+  #     uses: Azure/cli@v2
+  #     with:
+  #       inlineScript: |
+  #         ACR_NAME_QUARANTINE=$(az deployment group show -g rg-bu0001a0005 -n spoke-BU0001A0005-01 --query properties.outputs.quarantineContainerRegistryName.value -o tsv)
+  #         ACR_NAME=$(az deployment group show -g rg-bu0001a0005 -n spoke-BU0001A0005-01 --query properties.outputs.containerRegistryName.value -o tsv)
+  #         az acr import --source quarantine/falcosecurity/falco-no-driver:${{env.FALCO_NO_DRIVER_TAG}} -r $ACR_NAME_QUARANTINE -t live/falcosecurity/falco-no-driver:${{env.FALCO_NO_DRIVER_TAG}} -n $ACR_NAME
+  #         az acr import --source quarantine/falcosecurity/falco-driver-loader:${{env.FALCO_DRIVER_LOADER_TAG}} -r $ACR_NAME_QUARANTINE -t live/falcosecurity/falco-driver-loader:${{env.FALCO_DRIVER_LOADER_TAG}} -n $ACR_NAME
+  #         az acr import --source quarantine/falcosecurity/falcoctl:${{env.FALCOCTL_TAG}} -r $ACR_NAME_QUARANTINE -t live/falcosecurity/falcoctl:${{env.FALCOCTL_TAG}} -n $ACR_NAME
+  #         az acr import --source quarantine/library/busybox:${{env.BUSYBOX_TAG}} -r $ACR_NAME_QUARANTINE -t live/library/busybox:${{env.BUSYBOX_TAG}} -n $ACR_NAME
+  #         az acr import --source quarantine/kubereboot/kured:${{env.KURED_TAG}} -r $ACR_NAME_QUARANTINE -t live/kubereboot/kured:${{env.KURED_TAG}} -n $ACR_NAME 
         
-    # Validate whether a template is valid at subscription scope
-    - name: Bicep Validate Pre-Cluster Stamp Deployment
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: validate
-        name: validate-ClusterSpokeDeployment
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
-
-    # Preview changes
-    - name: "What-If Pre-Cluster Stamp Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: ${{ vars.ENVIRONMENT }}
-        type: deployment
-        operation: whatIf
-        name: whatif-ClusterSpokeDeployment
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
-
-    # Deploy
-    - name: "Pre-Cluster Stamp Deployment"
-      uses: Azure/bicep-deploy@v2
-      with:
-        environment: 'azureUSGovernment'
-        type: deployment
-        operation: create
-        name: spoke-BU0001A0005-01
-        scope: resourceGroup
-        resource-group-name: rg-bu0001a0005 
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}        
-        template-file: ./pre-cluster-stamp.bicep
-        parameters: '{"location": ${{ vars.LOCATION }}, "targetVnetResourceId": ${{ env.RESOURCEID_VNET_CLUSTERSPOKE }}, "aksIngressControllerCertificate": ${{ secrets.INGRESS_CONTROLLER_CERTIFICATE_BASE64 }}}'
-
     # deploy-cluster-stamp:
     #   name: 'Deploy cluster stamp'
     #   environment: prod
